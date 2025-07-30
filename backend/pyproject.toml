@@ -8,7 +8,6 @@ dependencies = [
     "fastapi[standard]",
     "httpx>=0.28.1",
     "passlib>=1.7.4",
-    "pypesten>=0.0.3",
     "python-jose[cryptography]>=3.5.0",
     "sqlalchemy>=2.0.41",
     "uvicorn[standard]>=0.35.0",

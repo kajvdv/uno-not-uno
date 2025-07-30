@@ -4,9 +4,8 @@ WORKDIR /code
 RUN apt-get -y update
 RUN apt-get -y upgrade
 RUN apt-get install -y sqlite3 libsqlite3-dev libssl-dev build-essential
-COPY ./pyproject.toml /code/pyproject.toml
-RUN pip install .
-COPY ./app /code/app
-COPY ./init_lobbies.py /code/init_lobbies.py
+COPY ./ /code
+COPY ../pypesten /code/pypesten
 RUN mkdir data
+RUN pip install -e .
 CMD ["fastapi", "run", "app/main.py", "--port", "8000"]

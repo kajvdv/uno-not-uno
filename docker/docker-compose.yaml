@@ -7,7 +7,11 @@ services:
     env_file:
       - .env
     volumes:
-      - ./backend/data:/code/data
+      - ../backend/data:/code/data
+      - ../backend/src:/code/src
+      - ../scripts:/code/scripts
+      - ../pypesten:/code/pypesten
+    command: bash -c "pip install -e ./pypesten && fastapi dev src/app/main.py --port 8000"
 
   frontend:
     build:
