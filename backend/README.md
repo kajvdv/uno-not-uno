@@ -20,6 +20,8 @@ You can also use `uvicorn app.main:app --env-file=.env` to use .env without load
 
 Navigate to `localhost:8000/docs` to see if the app runs
 
+Pypesten should be manually installed with a seperate pip install. 
+
 ## Building the Docker image
 Run `docker build -t pesten-fastapi .` to build the docker image. The tag is important since it gets referenced by the deploy repo.
 

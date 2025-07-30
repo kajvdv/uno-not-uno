@@ -8,14 +8,14 @@ export default defineConfig({
   server: {
     proxy: {
       '^/api/.*/connect': {
-        target: "ws://127.0.0.1:8000",
+        target: "ws://backend:8000",
         rewriteWsOrigin: true,
         changeOrigin: true,
         ws: true,
         rewrite: path => path.replace(/^\/api/, '')
       },
       '/api': {
-        target: "http://127.0.0.1:8000",
+        target: "http://backend:8000",
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/api/, '')
       },
@@ -24,14 +24,14 @@ export default defineConfig({
   preview: {
     proxy: {
       '^/api/.*/connect': {
-        target: "ws://127.0.0.1:8000",
+        target: "ws://backend:8000",
         rewriteWsOrigin: true,
         changeOrigin: true,
         ws: true,
         rewrite: path => path.replace(/^\/api/, '')
       },
       '/api': {
-        target: "http://127.0.0.1:8000",
+        target: "http://backend:8000",
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/api/, '')
       },

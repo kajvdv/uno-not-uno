@@ -5,12 +5,12 @@ description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
-    "fastapi[standard]",
-    "httpx>=0.28.1",
-    "passlib>=1.7.4",
-    "python-jose[cryptography]>=3.5.0",
-    "sqlalchemy>=2.0.41",
-    "uvicorn[standard]>=0.35.0",
+  "fastapi[standard]",
+  "httpx>=0.28.1",
+  "passlib>=1.7.4",
+  "python-jose[cryptography]>=3.5.0",
+  "sqlalchemy>=2.0.41",
+  "uvicorn[standard]>=0.35.0",
 ]
 
 [tool.pytest.ini_options]
