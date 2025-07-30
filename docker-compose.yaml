@@ -2,16 +2,15 @@ name: uno-not-uno
 services:
   backend:
     build:
-      context: ../
-      dockerfile: ./docker/Dockerfile.backend
+      dockerfile: Dockerfile.backend
       target: prod
     env_file:
       - .env
 
   frontend:
     build:
-      context: ../frontend
-      dockerfile: ../docker/Dockerfile.frontend
+      context: ./frontend
+      dockerfile: ../Dockerfile.frontend
       target: prod
     ports:
       - "80:80"

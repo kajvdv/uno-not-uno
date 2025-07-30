@@ -1,0 +1,20 @@
+name: uno-not-uno_dev
+services:
+  backend:
+    build:
+      target: dev
+    volumes:
+      - ./data:/code/data
+      - ./backend/src:/code/src
+      - ./scripts:/code/scripts
+      - ./pypesten:/code/pypesten
+
+  frontend:
+    build:
+      target: dev
+    volumes:
+      - ./frontend:/app
+    ports: !override
+      - "5173:5173"
+    depends_on:
+      - backend
