@@ -3,7 +3,8 @@
     { "path": "pypesten" },
     { "path": "frontend" },
     { "path": "backend" },
-    { "path": "2e2" },
+    { "path": "e2e" },
     { "path": "docker" },
+    { "path": "scripts" },
   ]
 }
