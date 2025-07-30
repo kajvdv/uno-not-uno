@@ -1,0 +1,9 @@
+{
+  "folders": [
+    { "path": "pypesten" },
+    { "path": "frontend" },
+    { "path": "backend" },
+    { "path": "2e2" },
+    { "path": "docker" },
+  ]
+}
