@@ -9,8 +9,7 @@ services:
 
   frontend:
     build:
-      context: ./frontend
-      dockerfile: ../Dockerfile.frontend
+      dockerfile: Dockerfile.frontend
       target: prod
     ports:
       - "80:80"
