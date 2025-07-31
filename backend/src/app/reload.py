@@ -18,27 +18,27 @@ def save_lobbies(lobbies, lobbies_create_parameters, delete_old=False):
     for name, lobby in lobbies.items():
         path = lobbies_dir / f'{name}.pickle'
         game = lobby.game
-        # creator = lobby.creator
+        creator = lobby.creator
         chooses = lobby.chooses
         player_names = [p.name for p in lobby.players]
         lobby_create = lobbies_create_parameters[name]
         ai_count = len([player.connection for player in lobby.players if type(player.connection) == AIConnection])
         with open(path, 'wb') as file:
-            pickle.dump([game, player_names, chooses, ai_count, lobby_create], file)
+            pickle.dump([game, creator, player_names, chooses, ai_count, lobby_create], file)
 
 async def load_lobbies(lobbies, lobbies_create_parameters):
     if not lobbies_dir.exists():
         return
     for lobby_path in lobbies_dir.iterdir():
         with open(lobby_path, 'rb') as file:
-            game, player_names, chooses, ai_count, lobby_create = pickle.load(file)
-        lobbies_crud = Lobbies(lobbies)
+            game, creator, player_names, chooses, ai_count, lobby_create = pickle.load(file)
+        lobbies_crud = Lobbies(creator, lobbies)
         # await lobbies_crud.create_lobby(lobby_path.stem, ai_count, game)
         await create_lobby_route(
             lobby_create,
             lobbies_crud,
             game,
-            # creator,
+            creator,
             lobbies_create_parameters,
         )
         lobby = lobbies[lobby_create.name]

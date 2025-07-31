@@ -16,7 +16,7 @@ from app.lobby.schemas import LobbyCreate
 from app.reload import save_lobbies, lobbies_dir
 
 async def main(lobbies, lobbies_create_parameters):
-    lobbies_crud = Lobbies(lobbies)
+    lobbies_crud = Lobbies(user='admin', lobbies=lobbies)
     
     # Creating games and adding them to the lobbies list
     game = Pesten(2,2, [77,77,77,77,77,77,77,77,77,77,30,0,], {77: 'draw_card-5', 78: 'draw_card-5'})
@@ -32,7 +32,7 @@ async def main(lobbies, lobbies_create_parameters):
         lobby_create,
         lobbies_crud,
         game,
-        # 'admin',
+        'admin',
         lobbies_create_parameters,
     )
     lobby = lobbies[lobby_name]
@@ -51,7 +51,7 @@ async def main(lobbies, lobbies_create_parameters):
         lobby_create,
         lobbies_crud,
         game,
-        # 'admin',
+        'admin',
         lobbies_create_parameters,
     )
     lobby = lobbies[lobby_name]
@@ -84,7 +84,7 @@ async def main(lobbies, lobbies_create_parameters):
         lobby_create,
         lobbies_crud,
         game,
-        # 'admin',
+        'admin',
         lobbies_create_parameters,
     )
     lobby = lobbies[lobby_name]
@@ -105,7 +105,7 @@ async def main(lobbies, lobbies_create_parameters):
         lobby_create,
         lobbies_crud,
         game,
-        # 'admin',
+        'admin',
         lobbies_create_parameters,
     )
     lobby = lobbies[lobby_name]
@@ -154,7 +154,7 @@ async def main(lobbies, lobbies_create_parameters):
         lobby_create,
         lobbies_crud,
         game,
-        # 'admin',
+        'admin',
         lobbies_create_parameters,
     )
     lobby = lobbies[lobby_name]
@@ -172,7 +172,7 @@ async def main(lobbies, lobbies_create_parameters):
         lobby_create,
         lobbies_crud,
         game,
-        # 'admin',
+        'admin',
         lobbies_create_parameters,
     )
     lobby = lobbies[lobby_name]

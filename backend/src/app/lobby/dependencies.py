@@ -67,9 +67,8 @@ def construct_rules(lobby_create: LobbyCreate = Form()):
 
 
 class HumanConnection:
-    def __init__(self, websocket: WebSocket, player_id: str):
-        assert len(player_id) <= 24
-        self.username = player_id
+    def __init__(self, websocket: WebSocket, token: str):
+        self.username = get_current_user(token)
         self.websocket = websocket
 
     async def accept(self):
@@ -123,11 +122,11 @@ tasks = set()
 class Lobbies:
     def __init__(
             self,
-            # user: str = Depends(get_current_user),
+            user: str = Depends(get_current_user),
             lobbies: dict[str, Lobby] = Depends(get_lobbies)
     ):
         self.lobbies = lobbies
-        # self.user = user
+        self.user = user
 
     def get_lobbies(self):
         return self.lobbies
@@ -136,15 +135,15 @@ class Lobbies:
         return self.lobbies[lobby_name]
 
     async def create_lobby(self, lobby_name, ai_count, game: Pesten):
-        # user = self.user
+        user = self.user
         if lobby_name in self.lobbies:
             raise HTTPException(status_code=400, detail="Lobby name already exists")        
-        lobby = Lobby(game)
+        lobby = Lobby(game, user)
         #TODO: Have NullConnection for every initial player (for load_lobbies) 
-        # await lobby.connect(Player(user, NullConnection()))
+        await lobby.connect(Player(user, NullConnection()))
         self.lobbies[lobby_name] = lobby
         for i in range(ai_count):
-            connection = AIConnection(lobby.game, i)
+            connection = AIConnection(lobby.game, i+1)
             task = asyncio.create_task(lobby.connect(Player(f'AI{i+1}', connection)), name=f"{lobby_name}-AI-{i+1}")
             tasks.add(task) # Make sure task is not garbage collected
             task.add_done_callback(tasks.discard)
@@ -152,13 +151,13 @@ class Lobbies:
         return lobby
 
     async def delete_lobby(self, lobby_name):
-        # user = self.user
+        user = self.user
         try:
             lobby_to_be_deleted = lobbies.pop(lobby_name)
         except KeyError as e:
             logger.error(f'Lobby with name of {e} does not exist')
             raise HTTPException(status.HTTP_404_NOT_FOUND, "This lobby does not exists")
-        if lobby_to_be_deleted.players[0].name != 'admin':
+        if lobby_to_be_deleted.players[0].name != user:
             raise HTTPException(status.HTTP_403_FORBIDDEN, "This lobby does not belong to you")
 
         for player in lobby_to_be_deleted.players:

@@ -5,7 +5,7 @@ import {
   RouterProvider,
 } from "react-router-dom";
 import { Link, useNavigate } from 'react-router-dom'
-// import LoginPage from './LoginPage'
+import LoginPage from './LoginPage'
 import RegisterPage from './RegisterPage';
 // import LobbiesPage from './LobbiesPage';
 import GamePage from './GamePage';
@@ -112,7 +112,7 @@ function LobbiesPage() {
 const router = createBrowserRouter([
   {
     path: "/",
-    element: <LandingPage/>,
+    element: <LoginPage/>,
   },
   {
     path: "/register",

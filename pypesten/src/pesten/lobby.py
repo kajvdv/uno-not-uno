@@ -85,8 +85,9 @@ class Player:
 
 
 class Lobby:
-    def __init__(self, game: Pesten) -> None:
+    def __init__(self, game: Pesten, creator) -> None:
         self.game = game
+        self.creator = creator
         self.started = False
         self.capacity = game.player_count
         self.players: list[Player] = [] # List corresponds with players in pesten game

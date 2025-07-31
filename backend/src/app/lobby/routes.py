@@ -17,13 +17,13 @@ router = APIRouter()
 @router.get('', response_model=list[LobbyResponse])
 async def get_lobbies(lobbies_crud: Lobbies = Depends()):
     lobbies = lobbies_crud.get_lobbies()
-    return [{
+    return sorted([{
         'id': id,
         'size': len(lobby.players),
         'capacity': lobby.capacity,
-        # 'creator': lobby.creator,
+        'creator': lobby.creator,
         'players': list(map(lambda p: p.name, lobby.players)),
-    } for id, lobby in lobbies.items() if not lobby.game.has_won]
+    } for id, lobby in lobbies.items() if not lobby.game.has_won], key=lambda lobby: lobby['creator'] != lobbies_crud.user)
 
 
 lobbies_create_parameters: dict[str, LobbyCreate] = {}
@@ -35,33 +35,33 @@ async def create_lobby_route(
         lobby_create: LobbyCreate = Form(),
         lobbies_crud: Lobbies = Depends(),
         game = Depends(create_game),
-        # user: str = Depends(get_current_user),
+        user: str = Depends(get_current_user),
         lobbies_create_parameters = Depends(get_lobbies_create_parameters)
 ):
-    new_lobby = await lobbies_crud.create_lobby(lobby_create.name, lobby_create.aiCount, game)
+    await lobbies_crud.create_lobby(lobby_create.name, lobby_create.aiCount, game)
     lobbies_create_parameters[lobby_create.name] = lobby_create
     return {
         'id': lobby_create.name,
         'size': 1 + lobby_create.aiCount,
         'capacity': lobby_create.size,
-        # 'creator': user,
-        'players': [],
+        'creator': user,
+        'players': [user],
     }
 
 
-# @router.delete('/{id}', response_model=LobbyResponse)
-# async def delete_lobby(
-#         id: str,
-#         lobbies_crud: Lobbies = Depends(),
-# ):
-#     lobby = await lobbies_crud.delete_lobby(id)
-#     return {
-#         'id': id,
-#         'size': len(lobby.players),
-#         'capacity': lobby.capacity,
-#         # 'creator': lobbies_crud.user,
-#         'players': [p.name for p in lobby.players],
-#     }
+@router.delete('/{id}', response_model=LobbyResponse)
+async def delete_lobby(
+        id: str,
+        lobbies_crud: Lobbies = Depends(),
+):
+    lobby = await lobbies_crud.delete_lobby(id)
+    return {
+        'id': id,
+        'size': len(lobby.players),
+        'capacity': lobby.capacity,
+        'creator': lobbies_crud.user,
+        'players': [p.name for p in lobby.players],
+    }
 
 
 @router.get('/{lobby_id}/rules')
@@ -73,8 +73,8 @@ def get_lobby_rules(lobby_id, lobbies = Depends(fetch_lobbies)):
 
 @router.websocket("/connect")
 async def connect_to_lobby(
-        lobby_name: str,
+        lobby_id: str,
         connection: HumanConnection = Depends(),
         connector: Connector = Depends(),
 ):
-    await connector.connect_to_lobby(lobby_name, connection)
+    await connector.connect_to_lobby(lobby_id, connection)

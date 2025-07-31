@@ -87,7 +87,6 @@ export async function connect(playerId, lobbyId) {
 
 
 export async function getUser() {
-    return "test" //TODO fix this
     const token = sessionStorage.getItem('accessToken')
     if (!token) {
         throw new Error("No token in client storage")
