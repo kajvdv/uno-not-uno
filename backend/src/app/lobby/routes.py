@@ -73,8 +73,8 @@ def get_lobby_rules(lobby_id, lobbies = Depends(fetch_lobbies)):
 
 @router.websocket("/connect")
 async def connect_to_lobby(
-        lobby_id: str,
+        lobby_name: str,
         connection: HumanConnection = Depends(),
         connector: Connector = Depends(),
 ):
-    await connector.connect_to_lobby(lobby_id, connection)
+    await connector.connect_to_lobby(lobby_name, connection)

@@ -57,6 +57,12 @@ form .form-button {
     margin-top: 24px;
 }
 
+form .buttons {
+    display: flex;
+    width: 100%;
+    justify-content: space-between;
+}
+
 .register-link {
     color: black;
 }

@@ -147,7 +147,7 @@ function GameWon({visible, message}) {
 function GamePage() {
     const params = new URLSearchParams(window.location.search)
     const lobbyId = params.get("lobby_id")
-    const user = params.get("player_id")
+    const user = getUser()
     const [game, setGame] = useState()
     const [showError, setShowError] = useState(false)
     const [error, setError] = useState("")

@@ -7,7 +7,7 @@ import {
 import { Link, useNavigate } from 'react-router-dom'
 import LoginPage from './LoginPage'
 import RegisterPage from './RegisterPage';
-// import LobbiesPage from './LobbiesPage';
+import LobbiesPage from './LobbiesPage';
 import GamePage from './GamePage';
 
 import server, { getUser, login } from "./server";
@@ -89,24 +89,24 @@ function AskNameModal({lobbyName, visible, onCancel}) {
 }
 
 
-function LobbiesPage() {
-    const [userName, setUserName] = useState("");
-    const [visible, setVisible] = useState(false)
+// function LobbiesPage() {
+//     const [userName, setUserName] = useState("");
+//     const [visible, setVisible] = useState(false)
     
-    useEffect(() => {
-        getUser().then((userName) => setUserName(userName));
-    }, []);
+//     useEffect(() => {
+//         getUser().then((userName) => setUserName(userName));
+//     }, []);
 
-    return (
-        <LobbiesProvider>
-            <div className="lobbies-page">
-                <header>Lobbies of {userName}</header>
-                <LobbyList userName={userName} onJoin={() => setVisible(true)}/>
-            </div>
-            <AskNameModal visible={visible} onCancel={() => setVisible(false)}/>
-        </LobbiesProvider>
-    );
-}
+//     return (
+//         <LobbiesProvider>
+//             <div className="lobbies-page">
+//                 <header>Lobbies of {userName}</header>
+//                 <LobbyList userName={userName} onJoin={() => setVisible(true)}/>
+//             </div>
+//             <AskNameModal visible={visible} onCancel={() => setVisible(false)}/>
+//         </LobbiesProvider>
+//     );
+// }
 
 
 const router = createBrowserRouter([

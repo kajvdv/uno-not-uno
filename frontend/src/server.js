@@ -37,10 +37,10 @@ server.interceptors.response.use(response => response, async error => {
 
 class GameConnection {
     constructor(playerId, lobby_id) {
-        // const token = sessionStorage.getItem("accessToken")
-        // console.assert(token != "", "Failed to get token")
+        const token = sessionStorage.getItem("accessToken")
+        console.assert(token != "", "Failed to get token")
         this.websocket = new WebSocket(
-            `ws://${window.location.host}/api/lobbies/connect?lobby_name=${lobby_id}&player_id=${playerId}`,
+            `ws://${window.location.host}/api/lobbies/connect?lobby_name=${lobby_id}&token=${token}`,
         )
     }
 
@@ -86,7 +86,7 @@ export async function connect(playerId, lobbyId) {
 }
 
 
-export async function getUser() {
+export function getUser() {
     const token = sessionStorage.getItem('accessToken')
     if (!token) {
         throw new Error("No token in client storage")
