@@ -25,7 +25,7 @@ export default defineConfig(({mode}) => {
     envDir: '../',
     server: {
       // proxy: getProxy(env.BACKEND_URL, env.WEBSOCKET_URL)
-      proxy: getProxy('http://host.docker.internal:8000', env.WEBSOCKET_URL)
+      proxy: getProxy(env.BACKEND_URL, env.WEBSOCKET_URL)
     },
     preview: {
       proxy: getProxy(env.BACKEND_URL, env.WEBSOCKET_URL)

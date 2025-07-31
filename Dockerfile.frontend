@@ -10,7 +10,7 @@ RUN npm install
 
 # Copy the rest of the application
 COPY ./frontend ./
-COPY ./.env ../.env
+COPY ./.env ./.env
 
 FROM base AS dev
 CMD ["npm", "run", "dev", "--", "--host"]

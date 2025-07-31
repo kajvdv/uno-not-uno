@@ -11,6 +11,8 @@ services:
     build:
       dockerfile: Dockerfile.frontend
       target: prod
+    env_file:
+      - .env
     ports:
       - "80:80"
     depends_on:
