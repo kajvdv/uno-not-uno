@@ -16,6 +16,17 @@ const getProxy = (backendUrl, websocketUrl) => ({
     changeOrigin: true,
     rewrite: (path) => path.replace(/^\/api/, '')
   },
+  '/admin': {
+    target: 'http://admin:80',
+    changeOrigin: true,
+    rewrite: (path) => path.replace(/^\/admin/, ''),
+    configure: (proxy, options) => {
+      // proxy will be an instance of 'http-proxy'
+      proxy.on('proxyReq', function(proxyReq, req, res, options) {
+        proxyReq.setHeader('X-Script-Name', 'http://localhost:5173/admin');
+      });
+    },
+  },
 })
 
 // https://vite.dev/config/
