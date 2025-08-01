@@ -63,11 +63,8 @@ class Bot(webdriver.Chrome):
         # print(cards)
         for card_el in card_els:
             value, _, suit = card_el.get_attribute('class').split()[1].split("_")
-            print(value, suit)
             if value == topcard_value or suit == topcard_suit or topcard_value == 'joker' or value == "joker":
                 width = card_el.size['width']
-                print(width)
-                # return
                 off_x = width / -2
                 off_y = 0
                 ActionChains(self)\

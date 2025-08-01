@@ -1,3 +1,4 @@
 -e ./automation
 -e ./backend
 -e ./pypesten
+pillow

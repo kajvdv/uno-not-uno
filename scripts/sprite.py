@@ -1,5 +1,3 @@
-#TODO Change to use Node instead of Python
-
 from pathlib import Path
 from PIL import Image # pip install pillow
 
