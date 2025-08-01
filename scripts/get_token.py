@@ -1,7 +1,8 @@
+# Get a development token for a few days
+
 import os
 from datetime import datetime, timedelta, timezone
 from jose import  jwt
-
 
 access_token = jwt.encode(
     {"sub": "admin", 'exp': datetime.now(timezone.utc) + timedelta(days=7)},
