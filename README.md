@@ -6,6 +6,10 @@ Portfolio project that demostrates my knowledge about full-stack web development
 - code organization
 - other DevOps practices
 
+
+## Scripts folder
+This contains usefull code for development. The same .env file should be used locally as in Docker to make sure that these scripts will work.
+
 ## Local development
 1. `python -m venv .venv`
 1. enter virtual environment

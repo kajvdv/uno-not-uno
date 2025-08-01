@@ -43,6 +43,23 @@ def get_current_user(token = Depends(oath2_scheme)):
     return user
 
 
+def generate_access_token(name, days=0, minutes=0):
+    access_token = jwt.encode(
+        {"sub": name, 'exp': datetime.now(timezone.utc) + timedelta(days=days, minutes=minutes)},
+        key=os.environ["ACCESS_TOKEN_SECRET"],
+        algorithm="HS256"
+    )
+    return access_token
+
+def generate_refresh_token(name, days=0, minutes=0):
+    refresh_token = jwt.encode(
+        {"sub": name, 'exp': datetime.now(timezone.utc) + timedelta(days=days, minutes=minutes)},
+        key=os.environ["REFRESH_TOKEN_SECRET"],
+        algorithm="HS256"
+    )
+    return refresh_token
+
+
 invalid_response = HTTPException(status.HTTP_400_BAD_REQUEST, detail="Invalid username or password")
 @router.post('/token')
 def get_token(response: Response, form: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
@@ -54,16 +71,18 @@ def get_token(response: Response, form: OAuth2PasswordRequestForm = Depends(), d
     hashed_password = row.User.password
     if not pwd_context.verify(form.password, hashed_password):
         raise invalid_response
-    access_token = jwt.encode(
-        {"sub": form.username, 'exp': datetime.now(timezone.utc) + timedelta(minutes=15)},
-        key=ACCESS_TOKEN_SECRET,
-        algorithm=ALGORITHM
-    )
-    refresh_token = jwt.encode(
-        {"sub": form.username, 'exp': datetime.now(timezone.utc) + timedelta(days=1)},
-        key=REFRESH_TOKEN_SECRET,
-        algorithm=ALGORITHM
-    )
+    # access_token = jwt.encode(
+    #     {"sub": form.username, 'exp': datetime.now(timezone.utc) + timedelta(minutes=15)},
+    #     key=ACCESS_TOKEN_SECRET,
+    #     algorithm=ALGORITHM
+    # )
+    access_token = generate_access_token(form.username, minutes=15)
+    # refresh_token = jwt.encode(
+    #     {"sub": form.username, 'exp': datetime.now(timezone.utc) + timedelta(days=1)},
+    #     key=REFRESH_TOKEN_SECRET,
+    #     algorithm=ALGORITHM
+    # )
+    refresh_token = refresh_token(form.username, days=0, minutes=15)
     response.set_cookie('refresh_token', refresh_token, httponly=True)
     return {"access_token": access_token, "token_type": "bearer"}
 
