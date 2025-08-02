@@ -4,7 +4,7 @@ import logging
 import json
 import random
 
-from fastapi import Depends, BackgroundTasks, status, Form
+from fastapi import Depends, BackgroundTasks, status, Form, Request
 from fastapi.exceptions import HTTPException
 from fastapi.websockets import WebSocket, WebSocketDisconnect
 from pesten.pesten import Pesten, card
@@ -95,17 +95,6 @@ class HumanConnection:
             raise ConnectionDisconnect from e
 
 
-lobbies: dict[str, Lobby] = {}
-def get_lobbies():
-    return lobbies
-
-def get_lobby_name(lobby):
-    for k, v in get_lobbies().items():
-        if lobby == v:
-            return k
-    return None
-
-
 def create_game(
         lobby_create: LobbyCreate = Form(),
         rules = Depends(construct_rules),
@@ -122,10 +111,10 @@ tasks = set()
 class Lobbies:
     def __init__(
             self,
+            request: Request,
             user: str = Depends(get_current_user),
-            lobbies: dict[str, Lobby] = Depends(get_lobbies)
     ):
-        self.lobbies = lobbies
+        self.lobbies = request.state.lobbies
         self.user = user
 
     def get_lobbies(self):
@@ -153,7 +142,7 @@ class Lobbies:
     async def delete_lobby(self, lobby_name):
         user = self.user
         try:
-            lobby_to_be_deleted = lobbies.pop(lobby_name)
+            lobby_to_be_deleted = self.lobbies.pop(lobby_name)
         except KeyError as e:
             logger.error(f'Lobby with name of {e} does not exist')
             raise HTTPException(status.HTTP_404_NOT_FOUND, "This lobby does not exists")
@@ -165,19 +154,3 @@ class Lobbies:
 
         return lobby_to_be_deleted
         
-
-
-class Connector:
-    def __init__(self, lobbies = Depends(get_lobbies)):
-        self.lobbies = lobbies
-
-    async def connect_to_lobby(self, lobby_name: str, connection: HumanConnection):
-        try:
-            lobby = self.lobbies[lobby_name]
-        except KeyError as e:
-            logger.error(f"Could not find {lobby_name} in lobbies")
-            logger.error(f"Current lobbies: {self.lobbies}")
-            return
-        player = Player(connection.username, connection)
-        logger.info(f"Connecting {connection.username} to {lobby_name}")
-        await lobby.connect(player)

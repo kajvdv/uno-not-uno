@@ -7,18 +7,18 @@ from dotenv import load_dotenv
 load_dotenv()
 
 import pytest
-from app.testclient import TestClient
+# from app.testclient import TestClient
 from app.database import Base
 import app
 from pesten.pesten import Pesten, card
 
 
-@pytest.fixture()
-def client():
-    client = TestClient()
-    yield client
-    client.drop_tables()
-    reload(app.lobby.dependencies)
+# @pytest.fixture()
+# def client():
+#     client = TestClient()
+#     yield client
+#     client.drop_tables()
+#     reload(app.lobby.dependencies)
 
 users = [
     ('admin', 'password'),
@@ -57,13 +57,6 @@ def test_admin_add_game(client, username):
     assert response.status_code == 200
     loaded_game, *_ = pickle.loads(response.content)
     assert loaded_game.draw_stack == game.draw_stack
-    # Test resetting the lobbies
-    response = client.reset_lobbies()
-    assert response.status_code == 200
-    response = client.get_lobbies()
-    data = response.json()
-    assert len(data) == 0
-    
     
 
 @pytest.mark.parametrize('size, ai_count', [
@@ -93,6 +86,17 @@ def test_create_lobby(client, username, size, ai_count):
         response = client.get_lobbies()
         data = response.json()
         assert len(data) == 1
+
+
+class TestLobbyEndpoint:
+    def test_create_lobby(self):
+        ...
+
+    def test_get_rules(self):
+        ...
+
+    def test_delete_lobby(self):
+        ...
 
 
 def test_connect_to_game(client):

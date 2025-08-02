@@ -71,17 +71,7 @@ def get_token(response: Response, form: OAuth2PasswordRequestForm = Depends(), d
     hashed_password = row.User.password
     if not pwd_context.verify(form.password, hashed_password):
         raise invalid_response
-    # access_token = jwt.encode(
-    #     {"sub": form.username, 'exp': datetime.now(timezone.utc) + timedelta(minutes=15)},
-    #     key=ACCESS_TOKEN_SECRET,
-    #     algorithm=ALGORITHM
-    # )
     access_token = generate_access_token(form.username, minutes=15)
-    # refresh_token = jwt.encode(
-    #     {"sub": form.username, 'exp': datetime.now(timezone.utc) + timedelta(days=1)},
-    #     key=REFRESH_TOKEN_SECRET,
-    #     algorithm=ALGORITHM
-    # )
     refresh_token = generate_refresh_token(form.username, days=0, minutes=15)
     response.set_cookie('refresh_token', refresh_token, httponly=True)
     return {"access_token": access_token, "token_type": "bearer"}

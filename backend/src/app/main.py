@@ -20,20 +20,14 @@ from app.admin import router as router_admin
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    from app.reload import save_lobbies, load_lobbies
-    from app.lobby.dependencies import get_lobbies
-    lobbies = get_lobbies()
-    
-    # await load_lobbies(lobbies, lobbies_create_parameters)
-    yield
-    save_lobbies(lobbies, lobbies_create_parameters)
+    lobbies = {}
+    yield {'lobbies': lobbies}
+    # Save the lobbies on exit. Load them back via the admin endpoints whenever after the server startsup.
+    # The owner of the lobby can connect AI's they want.
+    # save_lobbies(lobbies, lobbies_create_parameters)
 
 
-
-
-app = FastAPI(
-    lifespan=lifespan
-)
+app = FastAPI(lifespan=lifespan)
 # Secure endpoints with Depends(get_current_user)
 app.include_router(router_auth)
 app.include_router(

@@ -2,12 +2,13 @@
 # TODO: Have a player be replaced by an AI if they don't join back on time
 import logging
 
-from fastapi import APIRouter, Depends, Form
+from fastapi import APIRouter, Depends, Form, Request, WebSocket
 
 
 from app.auth import get_current_user
+from pesten.lobby import Player
 from .schemas import LobbyCreate, LobbyResponse, Card
-from .dependencies import Lobbies, Connector, HumanConnection, get_lobbies as fetch_lobbies, create_game
+from .dependencies import Lobbies, HumanConnection, create_game
 
 
 logger = logging.getLogger(__name__)
@@ -33,9 +34,9 @@ def get_lobbies_create_parameters():
 @router.post('', response_model=LobbyResponse)
 async def create_lobby_route(
         lobby_create: LobbyCreate = Form(),
+        user: str = Depends(get_current_user),
         lobbies_crud: Lobbies = Depends(),
         game = Depends(create_game),
-        user: str = Depends(get_current_user),
         lobbies_create_parameters = Depends(get_lobbies_create_parameters)
 ):
     await lobbies_crud.create_lobby(lobby_create.name, lobby_create.aiCount, game)
@@ -65,7 +66,8 @@ async def delete_lobby(
 
 
 @router.get('/{lobby_id}/rules')
-def get_lobby_rules(lobby_id, lobbies = Depends(fetch_lobbies)):
+def get_lobby_rules(lobby_id, request: Request):
+    lobbies = request.state['lobbies']
     lobby = lobbies[lobby_id]
     assert lobby
     return {Card.from_int(value).value: rule for value, rule in lobby.game.rules.items()}
@@ -74,7 +76,16 @@ def get_lobby_rules(lobby_id, lobbies = Depends(fetch_lobbies)):
 @router.websocket("/connect")
 async def connect_to_lobby(
         lobby_name: str,
+        websocket: WebSocket,
         connection: HumanConnection = Depends(),
-        connector: Connector = Depends(),
 ):
-    await connector.connect_to_lobby(lobby_name, connection)
+    lobbies = websocket.state.lobbies
+    try:
+        lobby = lobbies[lobby_name]
+    except KeyError as e:
+        logger.error(f"Could not find {lobby_name} in lobbies")
+        logger.error(f"Current lobbies: {lobbies}")
+        return
+    player = Player(connection.username, connection)
+    logger.info(f"Connecting {connection.username} to {lobby_name}")
+    await lobby.connect(player)

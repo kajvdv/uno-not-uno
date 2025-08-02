@@ -1,10 +1,10 @@
 import pickle
 
-from fastapi import FastAPI, Depends, HTTPException, APIRouter, Form, File
+from fastapi import FastAPI, Depends, HTTPException, APIRouter, Form, File, Request
 from fastapi.responses import Response
 
 from app.auth import get_current_user, get_token
-from app.lobby.dependencies import get_lobbies, Lobby, Lobbies
+from app.lobby.dependencies import Lobbies
 from app.lobby.routes import get_lobbies_create_parameters
 from app.lobby.schemas import LobbyCreate
 from pesten.lobby import AIConnection
@@ -20,7 +20,8 @@ router = APIRouter(dependencies=[Depends(get_current_admin)])
 
 
 @router.get("/logs/{lobby_name}")
-def get_game_logs(lobby_name, lobbies: dict[str, Lobby] = Depends(get_lobbies)):
+def get_game_logs(lobby_name, request: Request):
+    lobbies = request.state['lobbies']
     lobby = lobbies.get(lobby_name, None)
     if not lobby:
         raise HTTPException(404, "Lobby does not exists")
@@ -29,9 +30,11 @@ def get_game_logs(lobby_name, lobbies: dict[str, Lobby] = Depends(get_lobbies)):
 @router.get("/game/{lobby_name}")
 def get_game_pickle(
     lobby_name,
-    lobbies: dict[str, Lobby] = Depends(get_lobbies),
+    request: Request,
+    # lobbies: dict[str, Lobby] = Depends(get_lobbies),
     lobbies_create_parameters = Depends(get_lobbies_create_parameters)
 ):
+    lobbies = request.state.lobbies
     lobby = lobbies.get(lobby_name, None)
     game = lobby.game
     creator = lobby.creator
@@ -65,9 +68,14 @@ async def add_game(
         'players': [user],
     }
 
-@router.delete('/game/reset')
-def reset_games(
-    lobbies: dict[str, Lobby] = Depends(get_lobbies)
-):
-    while lobbies:
-        lobbies.popitem()
+@router.post('/game/connect-ai')
+def connect_ai_to_game():
+    #TODO implement. Connect an ai to a game at any moment if there is capacity.
+    ...
+
+# @router.delete('/game/reset')
+# def reset_games(
+#     lobbies: dict[str, Lobby] = Depends(get_lobbies)
+# ):
+#     while lobbies:
+#         lobbies.popitem()

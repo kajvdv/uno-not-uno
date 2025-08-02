@@ -28,7 +28,7 @@ class TestConnection:
 
     def __enter__(self):
         c = self.connection.__enter__()
-        self.board = self.connection
+        # self.board = self.connection
         return c
 
     def __exit__(self, *args, **kwargs):
@@ -108,3 +108,58 @@ class TestClient(testclient.TestClient):
     def reset_lobbies(self):
         response = self.delete(f'/admin/game/reset')
         return response
+    
+
+
+class Client:
+    def __init__(self, client):
+        self.client = client
+
+    def register(self, username, password):
+        response = self.client.post('/register', data={
+            "username": username,
+            "password": password
+        })
+        return response
+    
+    def login(self, username, password):
+        response = self.client.post('/token', data={
+            "username": username,
+            "password": password
+        })
+        data = response.json()
+        self.client.headers['Authorization'] = f"Bearer {data['access_token']}"
+        return response
+    
+    def get_lobbies(self):
+        response = self.client.get('/lobbies')
+        return response
+
+    def create_lobby(self, **kwars):
+        response = self.client.post('/lobbies', data=kwars)
+        return response
+
+
+    def connect_game(self, lobby_name, token):
+        connection = self.client.websocket_connect(f'/lobbies/connect?lobby_name={lobby_name}&token={token}')
+        return TestConnection(connection)
+
+    def add_game(self, game, lobby_name):
+        file = BytesIO()
+        pickle.dump(game, file)
+        data = {
+            'lobby_name': lobby_name,
+            'size': game.player_count
+        }
+        response = self.client.post('/admin/game', data=data, files={
+            'file': file
+        })
+        return response
+
+    def get_game(self, lobby_name):
+        response = self.client.get(f'/admin/game/{lobby_name}')
+        return response
+
+    # def reset_lobbies(self):
+    #     response = self.client.delete(f'/admin/game/reset')
+    #     return response
