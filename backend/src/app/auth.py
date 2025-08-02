@@ -43,7 +43,7 @@ def get_current_user(token = Depends(oath2_scheme)):
     return user
 
 
-def generate_access_token(name, days=0, minutes=0):
+def generate_access_token(name, days=0, minutes=15):
     access_token = jwt.encode(
         {"sub": name, 'exp': datetime.now(timezone.utc) + timedelta(days=days, minutes=minutes)},
         key=os.environ["ACCESS_TOKEN_SECRET"],
@@ -82,7 +82,7 @@ def get_token(response: Response, form: OAuth2PasswordRequestForm = Depends(), d
     #     key=REFRESH_TOKEN_SECRET,
     #     algorithm=ALGORITHM
     # )
-    refresh_token = refresh_token(form.username, days=0, minutes=15)
+    refresh_token = generate_refresh_token(form.username, days=0, minutes=15)
     response.set_cookie('refresh_token', refresh_token, httponly=True)
     return {"access_token": access_token, "token_type": "bearer"}
 
@@ -101,7 +101,6 @@ def refresh_token(request: Request):
 
 @router.post('/register', status_code=204)
 def register_user(username = Form(), password = Form(), db: Session = Depends(get_db)):
-    print("Creating user")
     hashed_password = pwd_context.hash(password)
     user = User(username=username, password=hashed_password)
     db.add(user)
@@ -115,5 +114,4 @@ def register_user(username = Form(), password = Form(), db: Session = Depends(ge
 
 @router.get('/users/me')
 def get_user(user = Depends(get_current_user)):
-    print(user)
     return user

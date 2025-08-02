@@ -1,12 +1,12 @@
 from typing import Optional
 
-from pydantic import BaseModel, constr
+from pydantic import BaseModel, constr, Field, model_validator
 from pesten.pesten import card_string, RED_JOKER, BLACK_JOKER
 
 
 class LobbyCreate(BaseModel):
     name: str
-    size: int
+    size: int = Field(ge=2, le=6)
     aiCount: int = 0
     jokerCount: int = 0
     two: str = ""
@@ -23,6 +23,12 @@ class LobbyCreate(BaseModel):
     king: str = ""
     ace: str = ""
     joker: str = ""
+
+    @model_validator(mode='after')
+    def check_ai_count(self):
+        if self.aiCount >= self.size:
+            raise ValueError("There are too many AI's")
+        return self
 
 
 class LobbyResponse(BaseModel):
