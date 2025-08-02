@@ -165,7 +165,8 @@ class Lobby:
         if not self.started:
             await player.connection.send_json({"error": "Game not started"})
             return
-        if self.game.current_player != self.players.index(player):
+        player_index = [p.name for p in self.players].index(name)
+        if self.game.current_player != player_index:
             await player.connection.send_json({"error": "Not your turn"})
             return
         try:

@@ -8,6 +8,9 @@ import time
 import os
 import logging
 
+from dotenv import load_dotenv
+load_dotenv()
+
 import pytest
 from sqlalchemy import select, create_engine, StaticPool
 from sqlalchemy.orm import Session

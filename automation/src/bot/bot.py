@@ -12,7 +12,7 @@ URL = "http://localhost:5173/"
 class Bot(webdriver.Chrome):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.implicitly_wait(1)
+        # self.implicitly_wait(1)
 
 
     def login_admin(self):
@@ -24,6 +24,19 @@ class Bot(webdriver.Chrome):
         password_el = self.find_element(By.ID, 'password')
         password_el.clear()
         password_el.send_keys('admin')
+
+        login_but = self.find_element(By.CSS_SELECTOR, '.form-button[value="Login"]')
+        login_but.click()
+
+    def login(self, username, password):
+        self.get(URL)
+        username_el = self.find_element(By.ID, 'username')
+        username_el.clear()
+        username_el.send_keys(username)
+
+        password_el = self.find_element(By.ID, 'password')
+        password_el.clear()
+        password_el.send_keys(password)
 
         login_but = self.find_element(By.CSS_SELECTOR, '.form-button[value="Login"]')
         login_but.click()

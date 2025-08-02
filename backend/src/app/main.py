@@ -24,7 +24,7 @@ async def lifespan(app: FastAPI):
     from app.lobby.dependencies import get_lobbies
     lobbies = get_lobbies()
     
-    await load_lobbies(lobbies, lobbies_create_parameters)
+    # await load_lobbies(lobbies, lobbies_create_parameters)
     yield
     save_lobbies(lobbies, lobbies_create_parameters)
 

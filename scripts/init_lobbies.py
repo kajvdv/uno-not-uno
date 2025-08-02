@@ -6,9 +6,6 @@ import asyncio
 import random
 import os
 
-os.environ["ACCESS_TOKEN_SECRET"] = "123"
-os.environ["REFRESH_TOKEN_SECRET"] = "123"
-
 from pesten.pesten import Pesten, card
 from app.lobby.dependencies import get_lobbies, Lobbies
 from app.lobby.routes import create_lobby_route

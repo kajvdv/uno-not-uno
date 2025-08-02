@@ -104,3 +104,7 @@ class TestClient(testclient.TestClient):
     def get_game(self, lobby_name):
         response = self.get(f'/admin/game/{lobby_name}')
         return response
+
+    def reset_lobbies(self):
+        response = self.delete(f'/admin/game/reset')
+        return response

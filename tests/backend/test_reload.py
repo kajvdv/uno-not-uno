@@ -7,6 +7,9 @@ import pytest
 from pesten.pesten import Pesten
 from pesten.lobby import Lobby, Player, NullConnection
 
+from dotenv import load_dotenv
+load_dotenv()
+
 from app.lobby.dependencies import Lobbies, create_game, construct_rules
 from app.lobby.routes import create_lobby_route
 from app.lobby.schemas import LobbyCreate

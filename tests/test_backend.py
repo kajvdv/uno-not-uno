@@ -57,6 +57,13 @@ def test_admin_add_game(client, username):
     assert response.status_code == 200
     loaded_game, *_ = pickle.loads(response.content)
     assert loaded_game.draw_stack == game.draw_stack
+    # Test resetting the lobbies
+    response = client.reset_lobbies()
+    assert response.status_code == 200
+    response = client.get_lobbies()
+    data = response.json()
+    assert len(data) == 0
+    
     
 
 @pytest.mark.parametrize('size, ai_count', [

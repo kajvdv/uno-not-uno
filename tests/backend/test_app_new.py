@@ -2,6 +2,9 @@ from fastapi.testclient import TestClient
 from app.main import app
 from app.database import get_db
 
+from dotenv import load_dotenv
+load_dotenv()
+
 from sqlalchemy import create_engine, StaticPool
 from sqlalchemy.orm import Session
 

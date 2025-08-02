@@ -64,3 +64,10 @@ async def add_game(
         'creator': user,
         'players': [user],
     }
+
+@router.delete('/game/reset')
+def reset_games(
+    lobbies: dict[str, Lobby] = Depends(get_lobbies)
+):
+    while lobbies:
+        lobbies.popitem()
