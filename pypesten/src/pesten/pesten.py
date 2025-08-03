@@ -115,7 +115,7 @@ class Pesten:
             self.log(f"Choose {choose}")
         # Not allowed to end with special card
         #TODO: Make this configurable
-        #TODO: Joker can by-pass this
+        #TODO: Joker should also be seen as special
         is_special = (played_card % 13) in self.rules
         if is_special and len(self.current_hand()) == 1:
             self.log("Can't end with rule card")

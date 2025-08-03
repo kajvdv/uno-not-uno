@@ -1,4 +1,3 @@
-# TODO: Structure file with all routes together and all models together and so on.
 # TODO: Have a player be replaced by an AI if they don't join back on time
 import logging
 
@@ -33,14 +32,16 @@ def get_lobbies_create_parameters():
 
 @router.post('', response_model=LobbyResponse)
 async def create_lobby_route(
+        request: Request,
         lobby_create: LobbyCreate = Form(),
         user: str = Depends(get_current_user),
         lobbies_crud: Lobbies = Depends(),
         game = Depends(create_game),
-        lobbies_create_parameters = Depends(get_lobbies_create_parameters)
+        # lobbies_create_parameters = Depends(get_lobbies_create_parameters)
 ):
     await lobbies_crud.create_lobby(lobby_create.name, lobby_create.aiCount, game)
-    lobbies_create_parameters[lobby_create.name] = lobby_create
+    # Save config to restore lobby on startup
+    request.state.lobbies_create_parameters[lobby_create.name] = lobby_create
     return {
         'id': lobby_create.name,
         'size': 1 + lobby_create.aiCount,

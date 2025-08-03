@@ -113,6 +113,7 @@ class Lobby:
         while self.run:
             try:
                 choose = await connection.receive_text()
+                logger.info(f"Choose received from {new_player}. Choose: {choose}")
                 await self.play_choose(new_player, choose)
                 self.run = not self.game.has_won # Stop all connections if game was won
             except CannotDraw as e:

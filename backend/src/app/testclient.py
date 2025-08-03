@@ -29,91 +29,97 @@ class TestConnection:
     def __enter__(self):
         c = self.connection.__enter__()
         # self.board = self.connection
-        return c
+        return self
 
     def __exit__(self, *args, **kwargs):
         c = self.connection.__exit__(*args, **kwargs)
-        return c
+        return self
 
     def play_turn(self, choose):
         self.connection.send_text(str(choose))
         return self.connection.receive_json()
 
 
-class TestClient(testclient.TestClient):
-    def __init__(self, *args, **kwargs):
-        super().__init__(app, *args, **kwargs)
-        engine = create_db_engine()
-        Base.metadata.create_all(engine)
-        self.engine = engine
-        app.dependency_overrides[get_db] = self.get_db
+# class TestClient(testclient.TestClient):
+#     def __init__(self, *args, **kwargs):
+#         super().__init__(app, *args, **kwargs)
+#         engine = create_db_engine()
+#         Base.metadata.create_all(engine)
+#         self.engine = engine
+#         app.dependency_overrides[get_db] = self.get_db
 
-    def get_db(self):
-        with Session(self.engine) as db:
-            yield db
+#     def get_db(self):
+#         with Session(self.engine) as db:
+#             yield db
 
-    def reset(self):
-        ...
-        # for db in get_db_override():
-        #     yield db
+#     def reset(self):
+#         ...
+#         # for db in get_db_override():
+#         #     yield db
     
-    def drop_tables(self):
-        Base.metadata.drop_all(self.engine)
+#     def drop_tables(self):
+#         Base.metadata.drop_all(self.engine)
 
-    def register(self, username, password):
-        response = self.post('/register', data={
-            "username": username,
-            "password": password
-        })
-        return response
+#     def register(self, username, password):
+#         response = self.post('/register', data={
+#             "username": username,
+#             "password": password
+#         })
+#         return response
     
-    def login(self, username, password):
-        response = self.post('/token', data={
-            "username": username,
-            "password": password
-        })
-        data = response.json()
-        self.headers['Authorization'] = f"Bearer {data['access_token']}"
-        return response
+#     def login(self, username, password):
+#         response = self.post('/token', data={
+#             "username": username,
+#             "password": password
+#         })
+#         data = response.json()
+#         self.headers['Authorization'] = f"Bearer {data['access_token']}"
+#         return response
     
-    def get_lobbies(self):
-        response = self.get('/lobbies')
-        return response
+#     def get_lobbies(self):
+#         response = self.get('/lobbies')
+#         return response
 
-    def create_lobby(self, **kwars):
-        response = self.post('/lobbies', data=kwars)
-        return response
+#     def create_lobby(self, **kwars):
+#         response = self.post('/lobbies', data=kwars)
+#         return response
 
 
-    def connect_game(self, lobby_name, token):
-        connection = self.websocket_connect(f'/lobbies/connect?lobby_name={lobby_name}&token={token}')
-        return TestConnection(connection)
+#     def connect_game(self, lobby_name, token):
+#         connection = self.websocket_connect(f'/lobbies/connect?lobby_name={lobby_name}&token={token}')
+#         return TestConnection(connection)
 
-    def add_game(self, game, lobby_name):
-        file = BytesIO()
-        pickle.dump(game, file)
-        data = {
-            'lobby_name': lobby_name,
-            'size': game.player_count
-        }
-        response = self.post('/admin/game', data=data, files={
-            'file': file
-        })
-        return response
+#     def add_game(self, game, lobby_name):
+#         file = BytesIO()
+#         pickle.dump(game, file)
+#         data = {
+#             'lobby_name': lobby_name,
+#             'size': game.player_count
+#         }
+#         response = self.post('/admin/game', data=data, files={
+#             'file': file
+#         })
+#         return response
 
-    def get_game(self, lobby_name):
-        response = self.get(f'/admin/game/{lobby_name}')
-        return response
+#     def get_game(self, lobby_name):
+#         response = self.get(f'/admin/game/{lobby_name}')
+#         return response
 
-    def reset_lobbies(self):
-        response = self.delete(f'/admin/game/reset')
-        return response
+#     def reset_lobbies(self):
+#         response = self.delete(f'/admin/game/reset')
+#         return response
     
 
 
 class Client:
     def __init__(self, client):
         self.client = client
+
+    def __enter__(self):
+        return self.client.__enter__()
+    
+    def __exit__(self, *args, **kwargs):
+        return self.client.__exit__(*args, **kwargs)
 
     def register(self, username, password):
         response = self.client.post('/register', data={
@@ -128,32 +134,39 @@ class Client:
             "password": password
         })
         data = response.json()
-        self.client.headers['Authorization'] = f"Bearer {data['access_token']}"
+        self.token = data['access_token']
+        self.client.headers['Authorization'] = f"Bearer {self.token}"
         return response
     
     def get_lobbies(self):
         response = self.client.get('/lobbies')
+        assert response.status_code == 200, response.json()['detail']
         return response
 
     def create_lobby(self, **kwars):
         response = self.client.post('/lobbies', data=kwars)
+        assert response.status_code == 200
         return response
 
 
-    def connect_game(self, lobby_name, token):
+    def connect_game(self, lobby_name, token=None):
+        if not token:
+            token = self.token
         connection = self.client.websocket_connect(f'/lobbies/connect?lobby_name={lobby_name}&token={token}')
         return TestConnection(connection)
 
-    def add_game(self, game, lobby_name):
+    def add_game(self, game, lobby_name, ai_count):
         file = BytesIO()
         pickle.dump(game, file)
         data = {
             'lobby_name': lobby_name,
-            'size': game.player_count
+            'size': game.player_count,
+            'ai_count': ai_count,
         }
         response = self.client.post('/admin/game', data=data, files={
             'file': file
         })
+        assert response.status_code == 200, response.json()
         return response
 
     def get_game(self, lobby_name):

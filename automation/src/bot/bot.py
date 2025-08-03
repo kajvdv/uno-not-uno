@@ -54,7 +54,6 @@ class Bot(webdriver.Chrome):
         join_button.click()
 
     def play_card(self):
-        #TODO Get game from Redis if I've added that
         card_els = [
             elem
             for elem in self.find_elements(By.CSS_SELECTOR, ".hand .card")

@@ -32,9 +32,10 @@ def get_game_pickle(
     lobby_name,
     request: Request,
     # lobbies: dict[str, Lobby] = Depends(get_lobbies),
-    lobbies_create_parameters = Depends(get_lobbies_create_parameters)
+    # lobbies_create_parameters = Depends(get_lobbies_create_parameters)
 ):
     lobbies = request.state.lobbies
+    lobbies_create_parameters = request.state.lobbies_create_parameters
     lobby = lobbies.get(lobby_name, None)
     game = lobby.game
     creator = lobby.creator
@@ -48,22 +49,22 @@ def get_game_pickle(
 
 @router.post("/game")
 async def add_game(
+    request: Request,
     lobby_name = Form(),
-    size = Form(),
+    ai_count = Form(0),
     file = File(),
     lobbies_crud: Lobbies = Depends(),
-    lobbies_create_parameters = Depends(get_lobbies_create_parameters)
 ):
+    lobbies_create_parameters = request.state.lobbies_create_parameters
     user = 'admin'
     game = pickle.loads(await file.read())
-    print(game.play_stack)
-    aiCount = 0
+    aiCount = ai_count
     await lobbies_crud.create_lobby(lobby_name, aiCount, game)
-    lobbies_create_parameters[lobby_name] = LobbyCreate(name=lobby_name, size=game.player_count)
+    lobbies_create_parameters[lobby_name] = LobbyCreate(name=lobby_name, size=game.player_count, aiCount=ai_count)
     return {
         'id': lobby_name,
         'size': 1 + aiCount,
-        'capacity': size,
+        'capacity': game.player_count,
         'creator': user,
         'players': [user],
     }

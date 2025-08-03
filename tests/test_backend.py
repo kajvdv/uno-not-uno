@@ -20,16 +20,6 @@ from pesten.pesten import Pesten, card
 #     client.drop_tables()
 #     reload(app.lobby.dependencies)
 
-users = [
-    ('admin', 'password'),
-    ('user', 'password')
-]
-
-@pytest.fixture(params=users, ids=[u[0] for u in users])
-def username(request, client):
-    client.register(*request.param)
-    client.login(*request.param)
-    return request.param[0]
 
 @pytest.fixture
 def token(username, client):

@@ -128,7 +128,6 @@ class Lobbies:
         if lobby_name in self.lobbies:
             raise HTTPException(status_code=400, detail="Lobby name already exists")        
         lobby = Lobby(game, user)
-        #TODO: Have NullConnection for every initial player (for load_lobbies) 
         await lobby.connect(Player(user, NullConnection()))
         self.lobbies[lobby_name] = lobby
         for i in range(ai_count):
