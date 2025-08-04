@@ -76,17 +76,19 @@ class HumanConnection:
 
     async def close(self):
         try:
+            logger.info("Closing websocket")
             await self.websocket.close()
         except RuntimeError:
-            pass
+            logger.error("Some runtime error")
 
     async def send_json(self, data):
         try:
             await self.websocket.send_json(data)
+            logger.info("Sended data to client")
         except WebSocketDisconnect as e:
             raise ConnectionDisconnect(e)
-        except RuntimeError:
-            pass
+        # except RuntimeError:
+        #     pass
 
     async def receive_text(self) -> str:
         try:

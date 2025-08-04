@@ -5,7 +5,8 @@ from fastapi.testclient import TestClient
 # from httpx import AsyncClient
 from sqlalchemy import create_engine, StaticPool
 from sqlalchemy.orm import Session
-from httpx import ASGITransport
+from httpx_ws.transport import ASGIWebSocketTransport
+
 
 from app.client import Client
 
@@ -51,7 +52,8 @@ async def app_fixture(app_setup):
 @pytest.fixture(name='client')
 async def client_fixture(app):
     print("Getting client")
-    return Client(transport=ASGITransport(app=app), base_url="http://testserver")
+    async with Client(transport=ASGIWebSocketTransport(app), base_url="http://testserver") as client:
+        yield client
 
 
 @pytest.fixture(params=['admin', 'testuser'])

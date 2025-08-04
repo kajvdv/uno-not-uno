@@ -112,8 +112,9 @@ class Lobby:
         # break-statements only make sure that the current connection stops
         while self.run:
             try:
+                logger.info(f"Waiting for choose of {name}")
                 choose = await connection.receive_text()
-                logger.info(f"Choose received from {new_player}. Choose: {choose}")
+                logger.info(f"Choose received from {name}. Choose: {choose}")
                 await self.play_choose(new_player, choose)
                 self.run = not self.game.has_won # Stop all connections if game was won
             except CannotDraw as e:
@@ -122,8 +123,10 @@ class Lobby:
                 logger.error("Player tried to end with special card")
                 await new_player.connection.send_json({"error": "Cannot end with special card"})
             except ClosingConnection as e:
+                logger.info("Closing connection")
                 break
             except ConnectionDisconnect as e:
+                logger.info("Connection disconnected")
                 break
 
     async def update_boards(self, message=""):
@@ -162,17 +165,21 @@ class Lobby:
         
     async def play_choose(self, player: Player, choose):
         # player = self.get_player_by_name(name)
+        logger.info("Playing choose")
         name = player.name
         if not self.started:
+            logger.info("Game not started")
             await player.connection.send_json({"error": "Game not started"})
             return
         player_index = [p.name for p in self.players].index(name)
         if self.game.current_player != player_index:
+            logger.info("Not your turn")
             await player.connection.send_json({"error": "Not your turn"})
             return
         try:
             choose = int(choose)
         except ValueError:
+            logger.info("Invalid choose")
             await player.connection.send_json({"error": "Invalid choose"})
             return
         log_count_before = len(self.game.logs)

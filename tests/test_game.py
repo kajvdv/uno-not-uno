@@ -1,7 +1,14 @@
+import asyncio
+import logging
 import pytest
 
 from app.client import Client
 
+logger = logging.getLogger(__name__)
+
+@pytest.fixture
+def anyio_backend():
+    return 'asyncio'
 
 @pytest.mark.anyio
 class TestGame:
@@ -16,4 +23,11 @@ class TestGame:
         )
         assert response.status_code == 200, response.json()
         async with client.connect_game(name) as conn:
-            await conn.play_turn(-1)
+            async with conn.start_receiving() as task:
+                await conn.play_turn(-1)
+                await conn.play_turn(-1)
+                await conn.play_turn(-1)
+                await conn.play_turn(-1)
+                await asyncio.sleep(5)
+            logger.info("Exiting receive loop") # This line is not reached
+        logger.info("Disconnecting websocket")
