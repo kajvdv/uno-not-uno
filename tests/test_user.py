@@ -7,18 +7,15 @@ from io import BytesIO
 import pytest
 import urllib.parse
 
-from dotenv import load_dotenv
-load_dotenv()
-
 import requests
 from requests import Session
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
 
 from bot.bot import Bot
-from pesten.pesten import Pesten, card
-from pesten.agent import Agent
-from app.auth import generate_access_token
+# from pesten.pesten import Pesten, card
+# from pesten.agent import Agent
+# from app.auth import generate_access_token
 
 
 

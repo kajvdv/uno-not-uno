@@ -7,12 +7,7 @@ import pytest
 from pesten.pesten import Pesten
 from pesten.lobby import Lobby, Player, NullConnection
 
-from dotenv import load_dotenv
-load_dotenv()
 
-from app.lobby.dependencies import Lobbies, create_game, construct_rules
-from app.lobby.routes import create_lobby_route
-from app.lobby.schemas import LobbyCreate
 
 
 pickle_path = Path("tests/pickled_lobby.pickle")
@@ -20,9 +15,11 @@ pickle_path = Path("tests/pickled_lobby.pickle")
 
 @pytest.mark.asyncio
 async def test_reload_lobbies(tmp_path):
+    from app.lobby.dependencies import Lobbies, create_game, construct_rules
+    from app.lobby.routes import create_lobby_route
+    from app.lobby.schemas import LobbyCreate
     os.environ["LOBBIES_DIR"] = str(tmp_path)
     from app.reload import save_lobbies, load_lobbies
-    # game = Pesten(2, 1, [0, 0, 0, 0, 0, 0, 0, 0])
     lobbies = {}
     lobbies_create_parameters = {}
     lobbies_crud = Lobbies(lobbies)

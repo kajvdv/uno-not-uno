@@ -1,41 +1,23 @@
-from importlib import reload
 import pickle
-
 import logging
-
-from dotenv import load_dotenv
-load_dotenv()
-
 import pytest
-# from app.testclient import TestClient
-from app.database import Base
-import app
-from pesten.pesten import Pesten, card
+from contextlib import ExitStack
 
-
-# @pytest.fixture()
-# def client():
-#     client = TestClient()
-#     yield client
-#     client.drop_tables()
-#     reload(app.lobby.dependencies)
-
+from app.client import Client
 
 @pytest.fixture
 def token(username, client):
     return client.headers['Authorization'].split()[1]
 
-def test_register_and_login(client):
-    response = client.register('admin', 'admin')
-    assert response.status_code == 204, response.text
-    response = client.login('admin', 'admin')
-    assert response.status_code == 200, response.text
+def test_register_and_login(client, username):
+    assert client.client.headers['Authorization']
 
 
 def test_admin_add_game(client, username):
+    from pesten.pesten import Pesten, card
     cards = [card(suit, value) for suit in range(4) for value in range(13)]
     game = Pesten(2, 8, cards)
-    response = client.add_game(game, "direct")
+    response = client.add_game(game, "direct", 0)
     if username != 'admin':
         assert response.status_code == 401
         return
@@ -88,30 +70,52 @@ class TestLobbyEndpoint:
     def test_delete_lobby(self):
         ...
 
-
-def test_connect_to_game(client):
+# @pytest.mark.usefixtures('with_lobbies')
+@pytest.mark.parametrize('lobbies', [
+    [('play_game', 2, 0)]
+])
+def test_play_game(client: Client, lobbies):
     from app.auth import generate_access_token
     from pesten.agent import Agent
+    from pesten.pesten import Pesten, card
+    name, size, ais = lobbies[0]
     cards = [card(suit, value) for suit in range(4) for value in range(13)]
-    game = Pesten(2, 8, cards)
-    agents = [Agent(1), Agent(2)]
-    lobby_name = 'test_lobby'
-    client.register('admin', 'admin')
-    client.login('admin', 'admin')
-    client.add_game(game, lobby_name)
-    connections = (
-        client.connect_game(lobby_name, generate_access_token('admin')),
-        client.connect_game(lobby_name, generate_access_token('user')),
-    )
-    i = 0
-    with connections[0], connections[1]:
-        # connections[i].connection.receive_json()
-        while not game.has_won:
-            choose = agents[i].generate_choose(game)
-            logging.info(f'Agent plays {choose}')
-            connections[i].play_turn(choose)
-            i += 1
-            i %= 2
-            response = client.get_game(lobby_name)
-            game, *_ = pickle.loads(response.content)
+    game = Pesten(size, 8, cards)
+    # agents = [Agent(1), Agent(2)]
+    agents = [Agent(i) for i in range(size-ais)]
+    lobby_name = name
+    with client:
+        client.add_game(game, lobby_name, ais, generate_access_token('admin'))
+        # connections = (
+        #     client.connect_game(lobby_name, generate_access_token('admin')),
+        #     client.connect_game(lobby_name, generate_access_token('user')),
+        # )
+        connections = [
+            client.connect_game(lobby_name, generate_access_token(f'testuser-{i}'))
+            for i in range(size-ais)
+        ]
+
+        # connections.start()
+        # with connections[0], connections[1]:
+        #     ...
+        # # i = 0
+        with ExitStack() as stack:
+            # conns = [stack.enter_context(c) for c in connections]
+            # conns = [stack.enter_context(c) for c in connections]
+            for c in connections:
+                conn = stack.enter_context(c)
+                conn.start_receiving()
+                raise Exception("excep")
+                assert 0
+        #     # connections[i].connection.receive_json()
+            while not game.has_won:
+                game = client.get_game(lobby_name)
+                print(game.players)
+        #         # choose = agents[i].generate_choose(game)
+        #         # logging.info(f'Agent plays {choose}')
+        #         # connections[i].play_turn(choose)
+        #         # i += 1
+        #         # i %= 2
+        #         # response = client.get_game(lobby_name)
+        #         # game, *_ = pickle.loads(response.content)
     

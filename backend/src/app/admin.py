@@ -58,7 +58,7 @@ async def add_game(
     lobbies_create_parameters = request.state.lobbies_create_parameters
     user = 'admin'
     game = pickle.loads(await file.read())
-    aiCount = ai_count
+    aiCount = int(ai_count)
     await lobbies_crud.create_lobby(lobby_name, aiCount, game)
     lobbies_create_parameters[lobby_name] = LobbyCreate(name=lobby_name, size=game.player_count, aiCount=ai_count)
     return {

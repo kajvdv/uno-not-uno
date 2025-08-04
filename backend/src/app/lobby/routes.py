@@ -68,7 +68,7 @@ async def delete_lobby(
 
 @router.get('/{lobby_id}/rules')
 def get_lobby_rules(lobby_id, request: Request):
-    lobbies = request.state['lobbies']
+    lobbies = request.state.lobbies
     lobby = lobbies[lobby_id]
     assert lobby
     return {Card.from_int(value).value: rule for value, rule in lobby.game.rules.items()}

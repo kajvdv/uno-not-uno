@@ -89,9 +89,12 @@ def refresh_token(request: Request):
     return {"access_token": new_access_token, "token_type": "bearer"}
 
 
+def hash_password(password):
+    return pwd_context.hash(password)
+
 @router.post('/register', status_code=204)
 def register_user(username = Form(), password = Form(), db: Session = Depends(get_db)):
-    hashed_password = pwd_context.hash(password)
+    hashed_password = hash_password(password)
     user = User(username=username, password=hashed_password)
     db.add(user)
     try:
