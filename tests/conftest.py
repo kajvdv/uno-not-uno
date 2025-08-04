@@ -11,6 +11,11 @@ from httpx_ws.transport import ASGIWebSocketTransport
 from app.client import Client
 
 
+# Only use the asyncio backend
+@pytest.fixture
+def anyio_backend():
+    return 'asyncio'
+
 # Modules are imported inside the fixture to ensure env vars are loaded before importing
 @pytest.fixture(autouse=True)
 def load_envvars(tmpdir):

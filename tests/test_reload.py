@@ -4,35 +4,35 @@ from fastapi import FastAPI
 
 from app.client import Client
 
+pytestmark = pytest.mark.anyio
+
 
 @pytest.fixture(name='app')
 async def app_fixture(app_setup):
     return app_setup
 
-@pytest.mark.anyio
-class TestReload:
-    async def test_lobbies_reload_after_restart(self, client: Client, app: FastAPI, user: str):
-        from asgi_lifespan import LifespanManager
-        async with LifespanManager(app) as manager:
-            client._transport.app = manager.app
-            count = 5
-            for i in range(count):
-                name = f'test_lobby-{i}'
-                size = 2
-                ai_count = 0
-                response = await client.create_lobby(
-                    name=name,
-                    size=size,
-                    aiCount=ai_count,
-                )
-                assert response.status_code == 200
-            response = await client.get_lobbies()
-            assert len(response.json()) == count
+async def test_lobbies_reload_after_restart(client: Client, app: FastAPI, user: str):
+    from asgi_lifespan import LifespanManager
+    async with LifespanManager(app) as manager:
+        client._transport.app = manager.app
+        count = 5
+        for i in range(count):
+            name = f'test_lobby-{i}'
+            size = 2
+            ai_count = 0
+            response = await client.create_lobby(
+                name=name,
+                size=size,
+                aiCount=ai_count,
+            )
+            assert response.status_code == 200
+        response = await client.get_lobbies()
+        assert len(response.json()) == count
 
-        async with LifespanManager(app) as manager:
-            client._transport.app = manager.app
-            response = await client.get_lobbies()
-            assert len(response.json()) == count
+    async with LifespanManager(app) as manager:
+        client._transport.app = manager.app
+        response = await client.get_lobbies()
+        assert len(response.json()) == count
 
 
 

@@ -66,27 +66,3 @@ async def get_tasks():
     for task in tasks:
         print(task.get_name(), task.get_coro())
 
-
-from pesten.lobby import Player
-from app.lobby.dependencies import Lobbies, HumanConnection
-@app.websocket("/ws")
-async def connect_to_lobby(
-        lobby_name: str,
-        websocket: WebSocket,
-        connection: HumanConnection = Depends(),
-):
-    print("connected with websocket route")
-    lobbies = websocket.state.lobbies
-    try:
-        lobby = lobbies[lobby_name]
-    except KeyError as e:
-        logger.error(f"Could not find {lobby_name} in lobbies")
-        logger.error(f"Current lobbies: {lobbies}")
-        return
-    player = Player(connection.username, connection)
-    logger.info(f"Connecting {connection.username} to {lobby_name}")
-    await lobby.connect(player)
-
-@app.websocket('/other')
-async def other_connection(ws: WebSocket):
-    print("connected to websocket")

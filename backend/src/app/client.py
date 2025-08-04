@@ -9,7 +9,7 @@ import json
 from sqlalchemy import create_engine, StaticPool
 from httpx import AsyncClient, ASGITransport
 from httpx_ws import aconnect_ws, AsyncWebSocketSession
-import httpx
+# import httpx
 from httpx_ws.transport import ASGIWebSocketTransport
 
 
@@ -29,45 +29,53 @@ def create_db_engine():
 class GameConnection:
     def __init__(self, connection: AsyncWebSocketSession):
         self.connection = connection
+        self.websocket = None
         self.board = None
         self.run = False
         # self.endpoint = endpoint
         # self.base_url = base_url
 
+    async def receive(self):
+        logger.debug("Start receiving messages")
+        while self.run:
+            logger.info("Waiting on message")
+            data = await self.ws.receive_json()
+        logger.debug("Stop receiving messages")
+
+
     async def __aenter__(self):
-        # from app.main import app
-        # self.ws_client = httpx.AsyncClient(transport=ASGIWebSocketTransport(app), base_url=self.base_url)
-        # c = await self.ws_client.__aenter__()
-        # self.connection = aconnect_ws(self.endpoint, c)
-        self.connection = await self.connection.__aenter__()
+        logger.debug("Enter GameConnection")
+        self.websocket = await self.connection.__aenter__()
+        self.receive_task = asyncio.create_task(self.receive())
         # self.board = self.connection
         return self
 
     async def __aexit__(self, *args, **kwargs):
+        logger.debug("Exit GameConnection")
+        self.run = False
+        self.receive_task.cancel()
         await self.connection.__aexit__(*args, **kwargs)
-        return self
 
     async def play_turn(self, choose):
-        await self.connection.send_text(str(choose))
-        # response = await self.connection.receive_json()
-        # logger.info(f'Websocket response: {response}')
-        # return response
+        await self.websocket.send_text(str(choose))
     
-    @asynccontextmanager
-    async def start_receiving(self):
-        async def receive():
-            logger.info("Start receiving messages")
-            while self.run:
-                data = await self.connection.receive_json()
-                logger.info("Received some data")
-                await asyncio.sleep(1)
-                logger.info("Continue")
-            logger.info("Stopped receiving messages")
-        self.run = True
-        task = asyncio.create_task(receive())
-        yield task
-        self.run = False
-        await task
+    # @asynccontextmanager
+    def start_receiving(self):
+        assert self.websocket, "Use with statement to open connection"
+        return Receiver(self.websocket)
+        # async def receive():
+        #     logger.info("Start receiving messages")
+        #     while self.run:
+        #         logger.info("Waiting on message")
+        #         data = await self.websocket.receive_json()
+        #     logger.info("Stopped receiving messages")
+        # logger.debug("Setting run True")
+        # self.run = True
+        # task = asyncio.create_task(receive())
+        # yield task
+        # logger.debug("Setting run False")
+        # self.run = False
+        # task.cancel()
 
 class Client(AsyncClient):
     def __init__(self, *args, **kwargs):
@@ -116,7 +124,7 @@ class Client(AsyncClient):
     def connect_game(self, lobby_name, token=None):
         if not token:
             token = self.token
-        endpoint = f'/ws?lobby_name={lobby_name}&token={token}'
+        endpoint = f'/lobbies/connect?lobby_name={lobby_name}&token={token}'
         url = str(self.base_url) + endpoint
         # url = "ws://test/lobbies/connect"
         logger.info(f"Websocket connect to {url}")
@@ -144,7 +152,7 @@ class Client(AsyncClient):
         return response
 
     def get_game(self, lobby_name):
-        response = self.client.get(f'/admin/game/{lobby_name}')
+        response = self.get(f'/admin/game/{lobby_name}')
         return response
     
     # async def register_user(self, username, password):
