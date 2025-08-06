@@ -107,6 +107,14 @@ class Client(Pesten):
         rule = self.rules[value]
         if rule == 'another_turn':
             return ANOTHER_TURN
+        if rule == "skip_turn":
+            return SKIP_TURN
+        if rule == "reverse_order":
+            return REVERSE_ORDER
+        if rule == "draw_card-2":
+            return DRAW_CARD
+        if rule == "change_suit":
+            return CHANGE_SUIT
 
     def cycle(self):
         choose = self.choose
@@ -155,8 +163,8 @@ class Client(Pesten):
             assert prev_player == self.current_player, "Player did not played again while they should've"
             return GETTING_CHOOSE
         if self.state == SKIP_TURN:
-
-            return DECIDE_NEXT_PLAYER
+            
+            return GETTING_CHOOSE
         if self.state == REVERSE_ORDER:
 
             return DECIDE_NEXT_PLAYER
@@ -183,13 +191,21 @@ class Client(Pesten):
         
 
 @pytest.mark.parametrize('seed', range(1000))
-def test_play_normal_two_player_game(seed):
+@pytest.mark.parametrize('rules', [
+    {}, # no rules
+    {5: "another_turn"},
+    {5: "skip_turn"},
+    {5: "reverse_order"},
+    {5: "draw_card-2"},
+    {5: "change_suit"},
+])
+def test_two_player_games(seed, rules):
     from pesten.pesten import card
     import random
     cards = [card(suit, value) for suit in range(4) for value in range(13)] 
     random.seed(seed)
     random.shuffle(cards)
-    game = Client(2, 8, cards)
+    game = Client(2, 8, cards, rules=rules)
     while True:
         prev_player = game.current_player
         for i, _ in enumerate(game.curr_hand):
@@ -204,25 +220,3 @@ def test_play_normal_two_player_game(seed):
             logger.warning("Test stopped because players couldn't play a card anymore")
             return
         
-
-@pytest.mark.parametrize('seed', range(1000))
-def test_another_turn_rule(seed):
-    from pesten.pesten import card
-    import random
-    cards = [card(suit, value) for suit in range(4) for value in range(13)] 
-    random.seed(seed)
-    random.shuffle(cards)
-    game = Client(2, 8, cards, rules={5: "another_turn"})
-    while True:
-        prev_player = game.current_player
-        for i, _ in enumerate(game.curr_hand):
-            game.inspect_play_turn(i)
-            if prev_player != game.current_player:
-                break
-        if game.state == GAME_WON:
-            break
-        try:
-            game.inspect_play_turn(-1)
-        except CannotDraw:
-            logger.warning("Test stopped because players couldn't play a card anymore")
-            return

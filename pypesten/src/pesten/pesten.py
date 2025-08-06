@@ -41,7 +41,7 @@ class EndWithSpecialCard(Exception):
 
 
 class Pesten:
-    def __init__(self, player_count: int, hand_count, cards: list, rules: dict = {}) -> None:
+    def __init__(self, player_count: int, hand_count, cards: list, rules: dict = {}, end_with_special=True) -> None:
         self.init_cards = list(cards)
         self.player_count = player_count
         self.current_player = 0
@@ -57,6 +57,7 @@ class Pesten:
         self.has_won = False
         self.asking_suit = False
         self.enable_logging = False
+        self.end_with_special = end_with_special
         self.logs = []
         for _ in range(hand_count):
             for hand in self.hands:
@@ -117,7 +118,7 @@ class Pesten:
         #TODO: Make this configurable
         #TODO: Joker should also be seen as special
         is_special = (played_card % 13) in self.rules
-        if is_special and len(self.current_hand()) == 1:
+        if not self.end_with_special and is_special and len(self.current_hand()) == 1:
             self.log("Can't end with rule card")
             raise EndWithSpecialCard()
         return can_play
