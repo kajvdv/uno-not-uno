@@ -13,9 +13,6 @@ from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
 
 from bot.bot import Bot
-# from pesten.pesten import Pesten, card
-# from pesten.agent import Agent
-# from app.auth import generate_access_token
 
 
 
@@ -120,6 +117,7 @@ def browser(ports):
 
 @pytest.fixture
 def game():
+    from pesten.pesten import Pesten, card
     cards = [card(suit, value) for suit in range(4) for value in range(13)]
     game = Pesten(2, 8, cards)
     client = Client()
@@ -133,6 +131,9 @@ def game():
 
 @pytest.mark.parametrize('ports', [(9222, 9223,),])
 def test_open_chrome(browser, ports, game):
+    from pesten.agent import Agent
+    from app.auth import generate_access_token
+
     # print(zip(*ports, [
     #     ('admin', 'admin'),
     #     ('kaj', 'kaj'),

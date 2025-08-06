@@ -7,6 +7,11 @@ Portfolio project that demostrates my knowledge about full-stack web development
 - other DevOps practices
 
 
+## Testing
+First party modules are imported in the tests.
+This gives more control over setting up the environment before importing them.
+An example is setting environment variables that are needed at import time.
+
 ## Scripts folder
 This contains usefull code for development. The same .env file should be used locally as in Docker to make sure that these scripts will work.
 

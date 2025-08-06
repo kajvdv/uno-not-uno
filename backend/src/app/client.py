@@ -6,24 +6,11 @@ import asyncio
 from anyio import ClosedResourceError
 import json
 
-from sqlalchemy import create_engine, StaticPool
-from httpx import AsyncClient, ASGITransport
+from httpx import AsyncClient
 from httpx_ws import aconnect_ws, AsyncWebSocketSession
-# import httpx
-from httpx_ws.transport import ASGIWebSocketTransport
 
 
 logger = logging.getLogger(__name__)
-
-def create_db_engine():
-    engine = create_engine(
-        "sqlite://",
-        connect_args={
-            'check_same_thread': False
-        },
-        poolclass=StaticPool
-    )
-    return engine
 
 
 class GameConnection:
@@ -32,8 +19,6 @@ class GameConnection:
         self.websocket = None
         self.board = None
         self.run = False
-        # self.endpoint = endpoint
-        # self.base_url = base_url
 
     async def receive(self):
         logger.debug("Start receiving messages")
@@ -59,23 +44,6 @@ class GameConnection:
     async def play_turn(self, choose):
         await self.websocket.send_text(str(choose))
     
-    # @asynccontextmanager
-    def start_receiving(self):
-        assert self.websocket, "Use with statement to open connection"
-        return Receiver(self.websocket)
-        # async def receive():
-        #     logger.info("Start receiving messages")
-        #     while self.run:
-        #         logger.info("Waiting on message")
-        #         data = await self.websocket.receive_json()
-        #     logger.info("Stopped receiving messages")
-        # logger.debug("Setting run True")
-        # self.run = True
-        # task = asyncio.create_task(receive())
-        # yield task
-        # logger.debug("Setting run False")
-        # self.run = False
-        # task.cancel()
 
 class Client(AsyncClient):
     def __init__(self, *args, **kwargs):
@@ -155,17 +123,3 @@ class Client(AsyncClient):
         response = self.get(f'/admin/game/{lobby_name}')
         return response
     
-    # async def register_user(self, username, password):
-    #     from app.main import app
-    #     async with AsyncClient(
-    #         transport=ASGITransport(app=app), base_url="http://test"
-    #     ) as client:
-    #         response = await client.post('/register', data={
-    #             "username": username,
-    #             "password": password
-    #         })
-    #         return response
-
-    # def reset_lobbies(self):
-    #     response = self.client.delete(f'/admin/game/reset')
-    #     return response

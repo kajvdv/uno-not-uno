@@ -154,9 +154,9 @@ class Pesten:
         # If choose is negative it will draw a card
 
         # I explicitly return in all cases to be explicit about the flow
+
         if self.has_won:
             return int(self.current_player)
-
 
         if self.asking_suit:
             if choose >= len(SUITS):
@@ -242,7 +242,7 @@ class Pesten:
                 self.play(choose)       
                 self.next()
             return self.current_player
-        return self.current_player
+        raise Exception("Did not enter a case")
     
     def play_turn(self, choose) -> int:
         self.enable_logging = True # Makes sure logs are only added by this function
