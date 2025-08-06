@@ -1,6 +1,9 @@
 import pytest
+import logging
 
-from pesten.pesten import Pesten, card
+from pesten.pesten import Pesten, card, card_string
+
+logger = logging.getLogger(__name__)
 
 
 # class Client(Pesten):
@@ -78,15 +81,22 @@ SKIP_TURN           = 7
 REVERSE_ORDER       = 8
 DRAW_MULTIPLE_CARD  = 9
 CHANGE_SUIT         = 10
+GAME_WON            = 11
 
 class Client(Pesten):
-    def __init__(self, player_count, hand_count, cards, rules = ...):
+    def __init__(self, player_count, hand_count, cards, rules = {}):
         super().__init__(player_count, hand_count, cards, rules)
         self.state = GETTING_CHOOSE
         self.choose = None
 
     def _can_play(self, choose):
-        return False
+        curr_hand = self.hands[self.current_player]
+        card = curr_hand[choose]
+        top_card = self.play_stack[-1]
+        return (
+            top_card // 13 == card // 13
+            or top_card % 13 == card % 13 
+        )
 
     def _is_special_card(self):
         return False
@@ -96,28 +106,45 @@ class Client(Pesten):
 
     def cycle(self):
         choose = self.choose
+        prev_player = self.prev_player
+        logger.info(f"{prev_player=}")
         if self.state == GETTING_CHOOSE:
             assert type(choose) == int
+            logger.info(f"GETTING_CHOOSE -> CHECK_CARD")
             return CHECK_CARD
         if self.state == CHECK_CARD:
             
-            if not self._can_play(choose):
-                return GETTING_CHOOSE
-            elif choose >= 0:
-                return PLAY_CHOOSE
-            else:
+            if choose < 0:
+                logger.info(f"CHECK_CARD -> DRAW_CARD")
                 return DRAW_CARD
-        if self.state == PLAY_CHOOSE:
-            self.play_turn(choose)
-            if self._is_special_card():
-                return self._get_special_state()
+            elif not self._can_play(choose):
+                logger.info(f"CHECK_CARD -> GETTING_CHOOSE")
+                return GETTING_CHOOSE
             else:
+                assert prev_player == self.current_player
+                logger.info(f"CHECK_CARD -> PLAY_CHOOSE")
+                return PLAY_CHOOSE
+        if self.state == PLAY_CHOOSE:
+            assert 0 <= choose < len(self.curr_hand)
+            self.play_turn(choose)
+            if self.has_won:
+                logger.info(f"PLAY_CHOOSE -> GAME_WON")
+                return GAME_WON
+            elif self._is_special_card():
+                state = self._get_special_state()
+                logger.info(f"PLAY_CHOOSE -> {state}")
+                return state
+            else:
+                logger.info("PLAY_CHOOSE -> DECIDE_NEXT_PLAYER")
                 return DECIDE_NEXT_PLAYER
         if self.state == DRAW_CARD:
+            assert choose < 0
             self.play_turn(choose)
+            logger.info("DRAW_CARD -> DECIDE_NEXT_PLAYER")
             return DECIDE_NEXT_PLAYER
         if self.state == DECIDE_NEXT_PLAYER:
-
+            assert self.current_player != prev_player
+            logger.info("DECIDE_NEXT_PLAYER -> GETTING_CHOOSE")
             return GETTING_CHOOSE
         if self.state == ANOTHER_TURN:
 
@@ -138,22 +165,31 @@ class Client(Pesten):
 
     def inspect_play_turn(self, choose):
         self.choose = choose
+        logger.info(f"Choose: {self.choose} / {card_string(self.curr_hand[choose])}")
+        self.prev_player = self.current_player
         for _ in range(100): # Only cycle max 100 times
             self.state = self.cycle()
             if self.state == GETTING_CHOOSE:
                 return
+            elif self.state == GAME_WON:
+                return
         raise Exception("Game got stuck")
         
 
-def test_play_normal_game():
+@pytest.mark.parametrize('seed', range(1000))
+def test_play_normal_game(seed):
     from pesten.pesten import card
     import random
     cards = [card(suit, value) for suit in range(4) for value in range(13)] 
-    random.seed(0)
+    random.seed(seed)
     random.shuffle(cards)
     game = Client(2, 8, cards)
-    prev_player = game.current_player
-    while not game.has_won:
-        for i, card in enumerate(game.curr_hand):
+    while True:
+        prev_player = game.current_player
+        for i, _ in enumerate(game.curr_hand):
             game.inspect_play_turn(i)
-        assert game.current_player != prev_player
+            if prev_player != game.current_player:
+                break
+        if game.state == GAME_WON:
+            break
+        game.inspect_play_turn(-1)
