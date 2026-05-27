@@ -1,0 +1,24 @@
+[project]
+name = "accept"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "backend",
+    "httpx>=0.28.1",
+    "pytest>=9.0.3",
+    "typer>=0.25.1",
+    "uno-not-uno-bot",
+]
+
+[project.scripts]
+accept = "accept.main:main"
+
+[build-system]
+requires = ["uv_build>=0.11.14,<0.12"]
+build-backend = "uv_build"
+
+[tool.uv.sources]
+backend = { path = "../backend", editable = true }
+uno-not-uno-bot = { path = "../automation", editable = true }

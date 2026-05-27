@@ -15,10 +15,19 @@ This contains usefull code for development. The same .env file should be used lo
 1. enter virtual environment
 2. `pip install -r requirements.txt`
 
-## Bot developement
-cd to chrome.exe: `cd "C:\Program Files\Google\Chrome\Application"`
-`./chrome.exe --remote-debugging-port=9222 --user-data-dir="C:\Selenium\ChromeProfile"`
-This will open a debug session make it easy for to develop the bot.
+
+## Testing
+In /frontend
+```
+npm run dev
+```
+In /accept:
+```
+uv run uvicorn app.main:app --reload --reload-dir ../backend --env-file .env
+accept startbrowser 5001 user1
+accept startbrowser 5002 user2
+pytest
+```
 
 ## Run
 `docker compose up`

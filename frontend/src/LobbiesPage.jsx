@@ -228,8 +228,15 @@ function LobbiesProvider({ children }) {
     }
 
     async function createLobby(form) {
-        const response = await server.post("/lobbies", form);
-        setLobbies((lobbies) => [...lobbies, response.data]);
+        const createData = Object.fromEntries(form)
+        createData.creator = "player 1"
+        console.log(createData)
+        const response = await server.post("/lobbies", createData);
+        await server.post(`/lobbies/${createData.name}/join`, {
+            username: createData.creator
+        })
+        // setLobbies((lobbies) => [...lobbies, response.data]);
+        navigate("/game?lobby_id=" + createData.name + "&player_id=" + createData.creator)
     }
 
     async function deleteLobby(id) {
@@ -268,8 +275,11 @@ function Lobby({id, size, capacity, creator, user, players}) {
             .then(() => setDeleting(false))
     }, [deleting])
 
-    function join() {
-        navigate("/game?lobby_id=" + id)
+    async function join() {
+        const username = window.prompt("Enter your name:")
+        if (!username) return
+        await server.post(`/lobbies/${id}/join`, {username})
+        navigate("/game?lobby_id=" + id + "&player_id=" + username)
     }
 
     return <div className="lobby" style={players.includes(user) ? {backgroundColor: 'yellow'} : {}}>
@@ -292,8 +302,8 @@ function LobbyList() {
 
     useEffect(() => {
         // getUser().then((userName) => setUserName(userName));
-        const userName = getUser()
-        setUserName(userName)
+        // const userName = getUser()
+        setUserName("test")
     }, []);
 
     return (
@@ -307,7 +317,7 @@ function LobbyList() {
                 </div>
             </div>
             <div className="lobby-buttons">
-                <button className="new-lobby-button" onClick={() => setShowModal(true)}>
+                <button id="create-new-game" className="new-lobby-button" onClick={() => setShowModal(true)}>
                     Create new game
                 </button>
             </div>

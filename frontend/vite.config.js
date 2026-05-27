@@ -33,7 +33,6 @@ const getProxy = (backendUrl, websocketUrl) => ({
 export default defineConfig(({mode}) => {
   const env = loadEnv(mode, process.cwd(), '')
   return {
-    envDir: '../',
     server: {
       // proxy: getProxy(env.BACKEND_URL, env.WEBSOCKET_URL)
       proxy: getProxy(env.BACKEND_URL, env.WEBSOCKET_URL)

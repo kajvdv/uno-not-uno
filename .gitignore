@@ -5,3 +5,5 @@ data
 .env*.local
 main.py
 *.egg-info
+.vscode
+*.pickle

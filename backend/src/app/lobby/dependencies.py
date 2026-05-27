@@ -3,14 +3,13 @@ import asyncio
 import logging
 import json
 import random
+from random import Random
 
 from fastapi import Depends, BackgroundTasks, status, Form, Request
 from fastapi.exceptions import HTTPException
 from fastapi.websockets import WebSocket, WebSocketDisconnect
 from pesten.pesten import Pesten, card
 from pesten.lobby import Lobby, NullConnection, AIConnection, Player, ConnectionDisconnect
-
-from app.auth import get_current_user
 
 from .schemas import LobbyCreate
 
@@ -67,8 +66,8 @@ def construct_rules(lobby_create: LobbyCreate = Form()):
 
 
 class HumanConnection:
-    def __init__(self, websocket: WebSocket, token: str):
-        self.username = get_current_user(token)
+    def __init__(self, websocket: WebSocket, username):
+        self.username = username
         self.websocket = websocket
 
     async def accept(self):
@@ -97,15 +96,20 @@ class HumanConnection:
             raise ConnectionDisconnect from e
 
 
+def get_randomizer(request: Request):
+    return request.app.state.rng
+
+
 def create_game(
         lobby_create: LobbyCreate = Form(),
         rules = Depends(construct_rules),
+        rng: Random = Depends(get_randomizer)
 ):
     cards = [card(suit, value) for suit in range(4) for value in range(13)]
     jokers = [77, 78]
     for i in range(lobby_create.jokerCount):
         cards.append(jokers[i%2])
-    random.shuffle(cards)
+    rng.shuffle(cards)
     game = Pesten(lobby_create.size, 8, cards, rules)
     return game
 
@@ -114,10 +118,11 @@ class Lobbies:
     def __init__(
             self,
             request: Request,
-            user: str = Depends(get_current_user),
+            # lobby_create: LobbyCreate,
+            # user: str = Depends(get_current_user),
     ):
         self.lobbies = request.state.lobbies
-        self.user = user
+        # self.user = lobby_create.creator
 
     def get_lobbies(self):
         return self.lobbies
@@ -125,8 +130,10 @@ class Lobbies:
     def get_lobby(self, lobby_name):
         return self.lobbies[lobby_name]
 
-    async def create_lobby(self, lobby_name, ai_count, game: Pesten):
-        user = self.user
+    async def create_lobby(self, lobby_create: LobbyCreate, game: Pesten):
+        user = lobby_create.creator
+        lobby_name = lobby_create.name
+        ai_count = lobby_create.aiCount
         if lobby_name in self.lobbies:
             raise HTTPException(status_code=400, detail="Lobby name already exists")        
         lobby = Lobby(game, user)
@@ -140,8 +147,9 @@ class Lobbies:
         logger.info(f"New game created: {lobby_name}")
         return lobby
 
-    async def delete_lobby(self, lobby_name):
-        user = self.user
+    async def delete_lobby(self, lobby_create: LobbyCreate):
+        user = lobby_create.creator
+        
         try:
             lobby_to_be_deleted = self.lobbies.pop(lobby_name)
         except KeyError as e:

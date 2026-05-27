@@ -140,11 +140,9 @@ class Lobby:
                     "draw_count": self.game.draw_count,
                     "current_player": self.players[self.game.current_player].name,
                     "otherPlayers": {
-                        self.players[i].name
-                        if i < len(self.players)else "": 
-                        len(self.game.hands[i])
-                        if i < len(self.players) else 0
+                        self.players[i].name: len(self.game.hands[i])
                         for i in range(self.capacity)
+                        if self.players[i].name != player.name
                     },
                     "hand": [card_object(card) for card in self.game.hands[player_id]],
                     "message": message

@@ -4,7 +4,7 @@ if __name__ == "__main__":
     load_dotenv(".env")
 
 from app.database import Base, engine, get_db
-from app.auth import register_user
+from app.auth import register_user, hash_password
 import app.main # Make sure all the orm models are imported
 
 Base.metadata.drop_all(engine)

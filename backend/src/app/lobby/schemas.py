@@ -7,6 +7,7 @@ from pesten.pesten import card_string, RED_JOKER, BLACK_JOKER
 class LobbyCreate(BaseModel):
     name: str
     size: int = Field(ge=2, le=6)
+    creator: str
     aiCount: int = 0
     jokerCount: int = 0
     two: str = ""
@@ -64,3 +65,7 @@ class Board(BaseModel):
     otherPlayers: dict[str, int]
     hand: list[Card]
     message: str
+
+
+class Registration(BaseModel):
+    url: str

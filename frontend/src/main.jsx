@@ -70,7 +70,8 @@ function AskNameModal({lobbyName, visible, onCancel}) {
   const [username, setUsername] = useState("");
   const navigate = useNavigate()
 
-  function join() {
+  async function join() {
+      await server.post(`/lobbies/${lobbyName}/join`, {username: username})
       navigate("/game?lobby_id=" + lobbyName + "&player_id=" + username)
   }
   
@@ -112,7 +113,7 @@ function AskNameModal({lobbyName, visible, onCancel}) {
 const router = createBrowserRouter([
   {
     path: "/",
-    element: <LoginPage/>,
+    element: <LobbiesPage/>,
   },
   {
     path: "/register",

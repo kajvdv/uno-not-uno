@@ -5,7 +5,7 @@ from datetime import datetime, timedelta, timezone
 
 from fastapi import APIRouter, Depends, Form, HTTPException, status, Response, Request
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
-from passlib.context import CryptContext
+from pwdlib import PasswordHash
 from jose import JWTError, jwt, ExpiredSignatureError
 from sqlalchemy import String, Integer, Column, insert, select
 from sqlalchemy.orm import Session
@@ -21,7 +21,7 @@ ACCESS_TOKEN_EXPIRE_MINUTES = 30
 
 logger = logging.getLogger(__name__)
 oath2_scheme = OAuth2PasswordBearer(tokenUrl="token")
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+password_hash = PasswordHash.recommended()
 router = APIRouter()
 
 class User(Base):
@@ -32,6 +32,14 @@ class User(Base):
 
     def __repr__(self) -> str:
         return f"username={self.username} password={self.password}"
+    
+
+def verify_password(plain_password, hashed_password):
+    return password_hash.verify(plain_password, hashed_password)
+
+
+def hash_password(password):
+    return password_hash.hash(password)
 
 
 def decode_token(token):
@@ -43,9 +51,9 @@ def get_current_user(token = Depends(oath2_scheme)):
     return user
 
 
-def generate_access_token(name, days=0, minutes=15):
+def generate_access_token(name, lobby_id, days=0, minutes=15):
     access_token = jwt.encode(
-        {"sub": name, 'exp': datetime.now(timezone.utc) + timedelta(days=days, minutes=minutes)},
+        {"sub": name, "lobby": lobby_id, 'exp': datetime.now(timezone.utc) + timedelta(days=days, minutes=minutes)},
         key=os.environ["ACCESS_TOKEN_SECRET"],
         algorithm="HS256"
     )
@@ -67,9 +75,8 @@ def get_token(response: Response, form: OAuth2PasswordRequestForm = Depends(), d
     row = db.execute(stmt).first()
     if not row:
         raise invalid_response
-    print(row.User)
     hashed_password = row.User.password
-    if not pwd_context.verify(form.password, hashed_password):
+    if not verify_password(form.password, hashed_password):
         raise invalid_response
     access_token = generate_access_token(form.username, minutes=15)
     refresh_token = generate_refresh_token(form.username, days=0, minutes=15)
@@ -88,9 +95,6 @@ def refresh_token(request: Request):
     )
     return {"access_token": new_access_token, "token_type": "bearer"}
 
-
-def hash_password(password):
-    return pwd_context.hash(password)
 
 @router.post('/register', status_code=204)
 def register_user(username = Form(), password = Form(), db: Session = Depends(get_db)):

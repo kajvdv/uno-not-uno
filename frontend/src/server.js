@@ -40,7 +40,7 @@ class GameConnection {
         const token = sessionStorage.getItem("accessToken")
         console.assert(token != "", "Failed to get token")
         this.websocket = new WebSocket(
-            `ws://${window.location.host}/api/lobbies/connect?lobby_name=${lobby_id}&token=${token}`,
+            `ws://${window.location.host}/api/lobbies/${lobby_id}/connect`,
         )
     }
 

@@ -9,6 +9,7 @@ import logging
 import asyncio
 import pickle
 import random
+from random import Random
 import sys
 from contextlib import asynccontextmanager
 
@@ -26,18 +27,18 @@ logger = logging.getLogger(__name__)
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    print("startup")
     lobbies_dir = os.environ['LOBBIES_DIR']
     lobbies = {}
     lobbies_create_parameters = {}
     reloader = Reloader(lobbies_dir, lobbies_create_parameters)
     logger.info('Loading lobbies from previous server process')
-    await reloader.load_lobbies(lobbies)
+    # await reloader.load_lobbies(lobbies)
+    seed = int(os.environ["GAME_SEED"])
+    app.state.rng = Random(seed)
     yield {
         'lobbies': lobbies,
         'lobbies_create_parameters': lobbies_create_parameters
     }
-    print("shutdown")
     logger.info('Saving lobbies for next server process')
     reloader.save_lobbies(lobbies)
 
