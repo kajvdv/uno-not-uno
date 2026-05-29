@@ -5,7 +5,7 @@ from pesten.pesten import card_string, RED_JOKER, BLACK_JOKER
 
 
 class LobbyCreate(BaseModel):
-    name: str
+    name: str = ""
     size: int = Field(ge=2, le=6)
     creator: str
     aiCount: int = 0

@@ -3,7 +3,6 @@ __pycache__
 data
 .env
 .env*.local
-main.py
 *.egg-info
 .vscode
 *.pickle

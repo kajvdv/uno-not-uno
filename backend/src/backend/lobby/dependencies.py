@@ -121,7 +121,7 @@ class Lobbies:
             # lobby_create: LobbyCreate,
             # user: str = Depends(get_current_user),
     ):
-        self.lobbies = request.state.lobbies
+        self.lobbies = request.app.state.lobbies
         # self.user = lobby_create.creator
 
     def get_lobbies(self):

@@ -35,6 +35,7 @@ async def lifespan(app: FastAPI):
     # await reloader.load_lobbies(lobbies)
     seed = int(os.environ["GAME_SEED"])
     app.state.rng = Random(seed)
+    app.state.lobbies = lobbies
     yield {
         'lobbies': lobbies,
         'lobbies_create_parameters': lobbies_create_parameters

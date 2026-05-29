@@ -1,7 +1,10 @@
 # TODO: Have a player be replaced by an AI if they don't join back on time
 import logging
+import random
+import string
+import urllib.parse
 
-from fastapi import APIRouter, Depends, Form, Request, WebSocket, Response, Body, Path, HTTPException
+from fastapi import APIRouter, Depends, Form, Request, WebSocket, Response, Body, Path, HTTPException, Cookie
 
 
 from backend.auth import get_current_user, generate_access_token, decode_token
@@ -23,27 +26,40 @@ def decode_cookie(cookies):
     return username, content['lobby']
 
 
-@router.get('', response_model=list[LobbyResponse])
-async def get_lobbies(lobbies_crud: Lobbies = Depends()):
-    lobbies = lobbies_crud.get_lobbies()
-    return [{
-        'id': id,
-        'size': len(lobby.players),
-        'capacity': lobby.capacity,
-        'creator': lobby.creator,
-        'players': list(map(lambda p: p.name, lobby.players)),
-    }
-        for id, lobby in lobbies.items()
-        if not lobby.game.has_won
-        and len([p for p in lobby.players
-            if not isinstance(p.connection, NullConnection)
-        ]) > 0
-    ]
+# @router.get('', response_model=list[LobbyResponse])
+# async def get_lobbies(lobbies_crud: Lobbies = Depends()):
+#     lobbies = lobbies_crud.get_lobbies()
+#     return [{
+#         "url": urllib.parse.quote(f"{request.url_for("get_lobby_route", lobby_id=lobby_create.name)}", safe="/:"),
+#         'id': id,
+#         'size': len(lobby.players),
+#         'capacity': lobby.capacity,
+#         'creator': lobby.creator,
+#         'players': list(map(lambda p: p.name, lobby.players)),
+#     }
+#         for id, lobby in lobbies.items()
+#         if not lobby.game.has_won
+#         and len([p for p in lobby.players
+#             if not isinstance(p.connection, NullConnection)
+#         ]) > 0
+#     ]
 
 
 lobbies_create_parameters: dict[str, LobbyCreate] = {}
 def get_lobbies_create_parameters():
     return lobbies_create_parameters
+
+
+@router.get("/current")
+def get_current_lobby(
+        request: Request,
+        sessionToken: str = Cookie(),
+):
+    lobby_id = decode_token(sessionToken)['lobby']
+    return {
+        "ws_url": str(request.url_for("connect_to_lobby", lobby_name=lobby_id)),
+        "url": urllib.parse.quote(f"{request.url_for("get_lobby_route", lobby_id=lobby_id)}", safe="/:")
+    }
 
 
 @router.get("/{lobby_id}")
@@ -63,12 +79,13 @@ async def create_lobby_route(
         game = Depends(create_game),
         # lobbies_create_parameters = Depends(get_lobbies_create_parameters)
 ):
+    lobby_create.name = ''.join(random.choices(string.ascii_uppercase, k=4))
     await lobbies_crud.create_lobby(lobby_create, game)
     # Save config to restore lobby on startup
     request.state.lobbies_create_parameters[lobby_create.name] = lobby_create
     response.set_cookie("sessionToken", generate_access_token(lobby_create.creator, lobby_create.name))
     return {
-        "url": f"{request.url_for("get_lobby_route", lobby_id=lobby_create.name)}",
+        "url": urllib.parse.quote(f"{request.url_for("get_lobby_route", lobby_id=lobby_create.name)}", safe="/:"),
         'id': lobby_create.name,
         'size': 1 + lobby_create.aiCount,
         'capacity': lobby_create.size,
@@ -77,7 +94,7 @@ async def create_lobby_route(
     }
 
 
-@router.post("/{lobby_id}/join", response_model=Registration)
+@router.post("/{lobby_id}/join")
 def register_user_router(
     request: Request,
     response: Response,
@@ -95,9 +112,10 @@ def register_user_router(
     elif username in usernames:
         raise HTTPException(status_code=409)
     response.set_cookie("sessionToken", generate_access_token(username, lobby_id))
-    return {
-        "url": str(request.url_for("connect_to_lobby", lobby_name=lobby_id))
-    }
+    # return {
+    #     "registerUrl": "",
+    #     "websocketUrl": str(request.url_for("connect_to_lobby", lobby_name=lobby_id))
+    # }
 
 
 @router.delete('/{id}', response_model=LobbyResponse)
@@ -131,7 +149,7 @@ async def connect_to_lobby(
 ):
     username, lobby_id = decode_cookie(websocket.cookies)
     # await websocket.accept()
-    lobbies = websocket.state.lobbies
+    lobbies = websocket.app.state.lobbies
     try:
         lobby = lobbies[lobby_name]
     except KeyError as e:
