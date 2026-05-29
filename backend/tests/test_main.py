@@ -1,9 +1,12 @@
 from urllib.parse import urlsplit
+import json
 
 import pytest
 from fastapi.testclient import TestClient
 
 from backend.auth import decode_token
+from backend.lobby.dependencies import create_game
+from pesten.pesten import Pesten, card
 
 
 TESTGAME = {
@@ -17,6 +20,19 @@ def clients(app):
     with TestClient(app) as client_1:
         client_2 = TestClient(app)
         yield client_1, client_2
+
+
+@pytest.fixture(autouse=True)
+def create_dummy_game(app):
+    def create_game_override():
+        game = Pesten(2, 1, [
+            card(0, 0),
+            card(0, 0),
+            card(0, 0),
+            card(0, 0),
+        ])
+        return game
+    app.dependency_overrides[create_game] = create_game_override
 
 
 def test_create_and_join_game(clients):
@@ -66,10 +82,11 @@ def test_main_happy_path(clients):
         user1.websocket_connect(ws_url) as user1_ws,
         user2.websocket_connect(ws_url) as user2_ws,
     ):
-        print(user1_ws.receive_json())
-        print(user2_ws.receive_json())
+        print(json.dumps(user1_ws.receive_json(), indent=4))
+        print(json.dumps(user2_ws.receive_json(), indent=4))
         user1_ws.send_text("0")
-        print(user1_ws.receive_json())
-        print(user2_ws.receive_json())
+        print(json.dumps(user1_ws.receive_json(), indent=4))
+        print(json.dumps(user2_ws.receive_json(), indent=4))
 
-    assert 0
+    assert user1.get("/lobbies/current").status_code == 410
+    assert user2.get("/lobbies/current").status_code == 410

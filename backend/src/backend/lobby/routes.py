@@ -53,20 +53,27 @@ def get_lobbies_create_parameters():
 @router.get("/current")
 def get_current_lobby(
         request: Request,
+        response: Response,
         sessionToken: str = Cookie(),
+        lobbies_crud: Lobbies = Depends(),
 ):
     lobby_id = decode_token(sessionToken)['lobby']
-    return {
-        "ws_url": str(request.url_for("connect_to_lobby", lobby_name=lobby_id)),
-        "url": urllib.parse.quote(f"{request.url_for("get_lobby_route", lobby_id=lobby_id)}", safe="/:")
-    }
+    if lobby_id in lobbies_crud.lobbies and not lobbies_crud.get_lobby(lobby_id).game.has_won:
+        return {
+            "ws_url": str(request.url_for("connect_to_lobby", lobby_name=lobby_id)),
+            "url": urllib.parse.quote(f"{request.url_for("get_lobby_route", lobby_id=lobby_id)}", safe="/:")
+        }
+    else:
+        response.delete_cookie("sessionToken")
+        if lobby_id in lobbies_crud.lobbies:
+            lobbies_crud.lobbies.pop(lobby_id)
+        raise HTTPException(status_code=410)
 
 
 @router.get("/{lobby_id}")
 def get_lobby_route(lobby_id: str, lobbies_crud: Lobbies = Depends()):
     lobby = lobbies_crud.get_lobby(lobby_id)
     return lobby
-
 
 
 @router.post('', response_model=GamePublic)
