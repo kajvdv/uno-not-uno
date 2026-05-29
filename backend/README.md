@@ -16,7 +16,7 @@ Load env variables in the terminal using `export $(xargs < .env)` (linux).
 
 Start the app with `fastapi dev` for development and `fastapi run` for production.
 
-You can also use `uv run uvicorn app.main:app --env-file=.env` to use .env without loading it in the terminal beforehand 
+You can also use `uv run uvicorn backend.main:app --env-file=.env` to use .env without loading it in the terminal beforehand 
 
 Navigate to `localhost:8000/docs` to see if the app runs
 

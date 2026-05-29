@@ -1,25 +1,13 @@
-
-FROM python:3.12-slim AS base
+FROM python:3.12-slim AS prod
 WORKDIR /code
-RUN apt-get -y update
-RUN apt-get -y upgrade
-RUN apt-get install -y \
- sqlite3 \
- libsqlite3-dev \
- libssl-dev \
- build-essential \
- libpq-dev \
- postgresql
-COPY ./backend /code
-COPY ./pypesten /code/pypesten
 
-FROM base AS dev
-# editable install to auto reload through volume
-RUN pip install -e .
-RUN pip install -e ./pypesten
-CMD ["fastapi", "dev", "src/app/main.py", "--host", "0.0.0.0", "--port", "8000"]
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    libpq-dev \
+    build-essential \
+    && rm -rf /var/lib/apt/lists/*
 
-FROM base AS prod
-RUN pip install .
-RUN pip install ./pypesten
-CMD ["fastapi", "run", "src/app/main.py", "--host", "0.0.0.0", "--port", "8000"]
+COPY pyproject.toml README.md ./
+COPY src ./src
+RUN pip install --no-cache-dir .
+
+CMD ["fastapi", "run", "src/backend/main.py", "--host", "0.0.0.0", "--port", "8000"]

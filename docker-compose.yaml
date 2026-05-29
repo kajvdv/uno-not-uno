@@ -2,35 +2,23 @@ name: uno-not-uno
 services:
   backend:
     build:
-      dockerfile: Dockerfile.backend
+      context: ./backend
+      dockerfile: Dockerfile
       target: prod
     env_file:
-      - .env
+      - ./backend/.env
 
   frontend:
     build:
-      dockerfile: Dockerfile.frontend
+      context: ./frontend
+      dockerfile: Dockerfile
       target: prod
     env_file:
-      - .env
+      - ./frontend/.env
     ports:
       - "80:80"
     depends_on:
       - backend
-
-  db:
-    image: postgres:latest
-    env_file:
-      - .env
-    volumes:
-      - pgdata:/var/lib/postgresql/data
-
-  admin:
-    image: dpage/pgadmin4:latest
-    env_file:
-      - .env
-    volumes:
-    - pgadmin:/var/lib/pgadmin
 
 volumes:
   pgdata:

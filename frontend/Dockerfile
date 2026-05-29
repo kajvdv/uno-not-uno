@@ -1,29 +1,16 @@
-# Step 1: Build the app
 FROM node:18 AS base
-
-# Set the working directory
 WORKDIR /app
 
-# Install dependencies
-COPY ./frontend/package.json ./frontend/package-lock.json ./
+COPY package.json package-lock.json ./
 RUN npm install
 
-# Copy the rest of the application
-COPY ./frontend ./
-COPY ./.env ./.env
-
-FROM base AS dev
-CMD ["npm", "run", "dev", "--", "--host"]
+COPY . .
 
 FROM base AS build
-# Build the app
 RUN npm run build
-# Step 2: Serve the app
+
 FROM nginx:alpine AS prod
-# Copy the built files from the previous stage
 COPY --from=build /app/dist /etc/nginx/html
-COPY ./nginx.conf /etc/nginx/nginx.conf
-# Expose the port the app will run on
+COPY nginx.conf /etc/nginx/nginx.conf
 EXPOSE 80
-# Start nginx server
 CMD ["nginx", "-g", "daemon off;"]
