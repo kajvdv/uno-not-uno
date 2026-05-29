@@ -11,7 +11,7 @@ from sqlalchemy import String, Integer, Column, insert, select
 from sqlalchemy.orm import Session
 from sqlalchemy.exc import IntegrityError
 
-from app.database import Base, get_db
+from backend.database import Base, get_db
 
 
 ACCESS_TOKEN_SECRET = os.environ["ACCESS_TOKEN_SECRET"]

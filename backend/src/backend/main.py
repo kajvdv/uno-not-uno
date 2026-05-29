@@ -16,10 +16,10 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI, WebSocket, Depends
 from fastapi.responses import RedirectResponse, PlainTextResponse
 
-from app.lobby.routes import router as router_lobby, lobbies_create_parameters
-from app.auth import router as router_auth, ExpiredSignatureError
-from app.admin import router as router_admin
-from app.reload import Reloader
+from backend.lobby.routes import router as router_lobby, lobbies_create_parameters
+from backend.auth import router as router_auth, ExpiredSignatureError
+from backend.admin import router as router_admin
+from backend.reload import Reloader
 
 
 logger = logging.getLogger(__name__)

@@ -6,8 +6,8 @@ from fastapi import Request
 
 from pesten.lobby import AIConnection
 
-from app.lobby.dependencies import Lobbies, Player, NullConnection
-from app.lobby.routes import create_lobby_route
+from backend.lobby.dependencies import Lobbies, Player, NullConnection
+from backend.lobby.routes import create_lobby_route
 
 
 # lobbies_dir = Path.cwd() / os.environ.get('LOBBIES_DIR', 'data/lobbies')

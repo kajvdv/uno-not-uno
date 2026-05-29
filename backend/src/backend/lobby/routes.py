@@ -4,12 +4,12 @@ import logging
 from fastapi import APIRouter, Depends, Form, Request, WebSocket, Response, Body, Path, HTTPException
 
 
-from app.auth import get_current_user, generate_access_token, decode_token
+from backend.auth import get_current_user, generate_access_token, decode_token
 from pesten.lobby import Player, NullConnection
 from .schemas import LobbyCreate, LobbyResponse, Card, Registration
 from .dependencies import Lobbies, HumanConnection, create_game
 
-from app.game.schemas import GamePublic
+from backend.game.schemas import GamePublic
 
 
 logger = logging.getLogger(__name__)

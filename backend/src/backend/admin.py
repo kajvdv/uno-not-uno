@@ -3,10 +3,10 @@ import pickle
 from fastapi import FastAPI, Depends, HTTPException, APIRouter, Form, File, Request
 from fastapi.responses import Response
 
-from app.auth import get_current_user, get_token
-from app.lobby.dependencies import Lobbies
-from app.lobby.routes import get_lobbies_create_parameters
-from app.lobby.schemas import LobbyCreate
+from backend.auth import get_current_user, get_token
+from backend.lobby.dependencies import Lobbies
+from backend.lobby.routes import get_lobbies_create_parameters
+from backend.lobby.schemas import LobbyCreate
 from pesten.lobby import AIConnection
 
 
