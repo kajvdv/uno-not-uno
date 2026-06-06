@@ -7,6 +7,10 @@ const router = createRouter({
       path: '/',
       component: () => import('@/views/start/StartView.vue'),
     },
+    {
+      path: '/new',
+      component: () => import('@/views/new/NewGameView.vue'),
+    },
   ],
 })
 

@@ -2,6 +2,8 @@
 import { Card, CardTitle, Divider, CardFooter } from '@/components/card'
 import { Button } from '@/components/button'
 import RandomButton from './RandomButton.vue'
+import { useRouter } from 'vue-router'
+const router = useRouter()
 </script>
 
 <template>
@@ -11,7 +13,9 @@ import RandomButton from './RandomButton.vue'
       <h2>Speel mee.<br />Geen account.</h2>
       <p>2 – 6 spelers &nbsp;·&nbsp; gratis &nbsp;·&nbsp; direct</p>
     </CardTitle>
-    <Button type="ink" style="margin-bottom: 10px">＋ &nbsp;Nieuwe lobby maken</Button>
+    <Button @click="router.push('/new')" type="ink" style="margin-bottom: 10px"
+      >＋ &nbsp;Nieuwe lobby maken</Button
+    >
     <Button type="ghost" style="margin-bottom: 10px">→ &nbsp;Lobby joinen met code</Button>
     <Divider>of</Divider>
     <RandomButton />
