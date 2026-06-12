@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { Button } from '@/components/button'
 import { Card } from '@/components/card'
-import { InputGroup, TextInput, Label, Select } from '@/components/input'
 
 function createLobby() {
   console.log('Creating lobby')

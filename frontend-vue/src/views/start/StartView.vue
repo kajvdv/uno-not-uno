@@ -1,10 +1,7 @@
 <script setup lang="ts">
-import { Card, CardTitle, Divider, CardFooter } from '@/components/card'
+import { Card, CardTitle } from '@/components/card'
 import { Button } from '@/components/button'
 import { TextInput } from '@/components/input/index.ts'
-import RandomButton from './RandomButton.vue'
-import { useRouter } from 'vue-router'
-const router = useRouter()
 
 function joinLobby() {
   console.log('joining lobby')
@@ -19,9 +16,11 @@ function joinLobby() {
         Stack<br />Attack
       </h2>
     </CardTitle>
-    <Button class="mb-2.5" type="ink" @click="router.push('/new')"
-      >＋ &nbsp;Nieuwe lobby maken</Button
-    >
+    <RouterLink to="/new" v-slot="{ navigate, isActive }" custom>
+      <Button class="mb-2.5" type="ink"" @click="navigate"
+        >＋ &nbsp;Nieuwe lobby maken</Button
+      >
+    </RouterLink>
     <div class="flex gap-2.5 my-3.5 mx-0">
       <span
         class="flex flex-1 uppercase text-(--ink-dim) text-xs items-center gap-2.5 before:flex-1 before:content-[''] before:h-px before:bg-(--border) after:flex-1 after:content-[''] after:h-px after:bg-(--border)"
