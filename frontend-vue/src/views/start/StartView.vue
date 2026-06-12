@@ -15,7 +15,9 @@ function joinLobby() {
   <Card>
     <CardTitle>
       <div class="text-2xl opacity-10 mb-2 text-(--ink) tracking-[0.2em]">♠ ♥ ♦ ♣</div>
-      <h2 class="font-title text-3xl font-black text-(--ink) mb-1.5">Uno Not Uno</h2>
+      <h2 class="font-title text-3xl font-black text-(--ink) mb-1.5 uppercase">
+        Stack<br />Attack
+      </h2>
     </CardTitle>
     <Button class="mb-2.5" type="ink" @click="router.push('/new')"
       >＋ &nbsp;Nieuwe lobby maken</Button
