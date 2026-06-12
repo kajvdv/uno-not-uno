@@ -15,6 +15,12 @@ const router = useRouter()
     <Button class="mb-2.5" type="ink" @click="router.push('/new')"
       >＋ &nbsp;Nieuwe lobby maken</Button
     >
+    <div class="flex gap-2.5 my-3.5 mx-0">
+      <span
+        class="flex flex-1 uppercase text-(--ink-dim) text-xs items-center gap-2.5 before:flex-1 before:content-[''] before:h-px before:bg-(--border) after:flex-1 after:content-[''] after:h-px after:bg-(--border)"
+        >of</span
+      >
+    </div>
     <Button type="ghost" style="margin-bottom: 10px">→ &nbsp;Lobby joinen met code</Button>
   </Card>
 </template>

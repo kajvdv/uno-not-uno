@@ -1,6 +1,10 @@
 @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=DM+Mono:wght@300;400;500&display=swap');
 @import 'tailwindcss';
 
+@theme {
+  --font-title: 'Playfair Display', serif;
+}
+
 :root {
   --cream: #f2ede4;
   --warm: #e8dfd0;
@@ -19,4 +23,5 @@
 
 body {
   background: var(--cream);
+  font-family: 'DM Mono', monospace;
 }
