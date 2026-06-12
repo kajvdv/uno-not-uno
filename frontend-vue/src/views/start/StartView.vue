@@ -5,6 +5,10 @@ import { TextInput } from '@/components/input/index.ts'
 import RandomButton from './RandomButton.vue'
 import { useRouter } from 'vue-router'
 const router = useRouter()
+
+function joinLobby() {
+  console.log('joining lobby')
+}
 </script>
 
 <template>
@@ -22,7 +26,9 @@ const router = useRouter()
         >of</span
       >
     </div>
-    <TextInput class="mb-3.5" placeholder="Code"></TextInput>
-    <Button type="ghost" style="margin-bottom: 10px">→ &nbsp;Lobby joinen met code</Button>
+    <form @submit.prevent="joinLobby">
+      <TextInput name="code" class="mb-3.5" placeholder="Code"></TextInput>
+      <Button type="ghost" style="margin-bottom: 10px">→ &nbsp;Lobby joinen met code</Button>
+    </form>
   </Card>
 </template>

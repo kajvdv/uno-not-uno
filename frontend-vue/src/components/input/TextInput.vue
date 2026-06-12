@@ -1,5 +1,5 @@
 <template>
-  <input class="field-input" />
+  <input class="field-input text-center uppercase placeholder:text-center" />
 </template>
 
 <style scoped>
