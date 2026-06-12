@@ -1,17 +1,8 @@
 <template>
-    <div class="card" style="max-width: 300px;">
-        <slot></slot>
-    </div>
+  <div
+    class="m-auto bg-white w-full border border-(--border) px-5 pt-6 pb-7 shadow-(--shadow) rounded-3xl"
+    style="max-width: 300px"
+  >
+    <slot></slot>
+  </div>
 </template>
-
-<style scoped>
-.card {
-    margin: 0 auto;
-    background: #fff;
-    width: 100%;
-    border: 1px solid var(--border);
-    border-radius: 20px;
-    box-shadow: var(--shadow);
-    padding: 22px 20px 28px;
-}
-</style>
