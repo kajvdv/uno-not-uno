@@ -21,6 +21,5 @@
 
 .field-input:focus {
   border-color: var(--border-focus);
-  background: #fff;
 }
 </style>

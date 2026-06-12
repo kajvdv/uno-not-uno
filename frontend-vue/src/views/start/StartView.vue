@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { Card, CardTitle, Divider, CardFooter } from '@/components/card'
 import { Button } from '@/components/button'
+import { TextInput } from '@/components/input/index.ts'
 import RandomButton from './RandomButton.vue'
 import { useRouter } from 'vue-router'
 const router = useRouter()
@@ -21,6 +22,7 @@ const router = useRouter()
         >of</span
       >
     </div>
+    <TextInput class="mb-3.5" placeholder="Code"></TextInput>
     <Button type="ghost" style="margin-bottom: 10px">→ &nbsp;Lobby joinen met code</Button>
   </Card>
 </template>
