@@ -1,11 +1,12 @@
 <script setup lang="ts">
 const { type = 'ink' } = defineProps<{
-  type: 'ink' | 'ghost' | 'shimmer' | 'green'
+  type: 'ink' | 'ghost' | 'green'
 }>()
 
 const variant = {
   ink: 'bg-(--ink) text-white',
   ghost: 'transparent border border-(--border) text-(--ink)',
+  green: 'bg-(--green) text-white',
 }
 </script>
 
