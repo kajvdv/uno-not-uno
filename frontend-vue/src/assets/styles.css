@@ -1,6 +1,5 @@
-@import 'tailwindcss';
-
 @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=DM+Mono:wght@300;400;500&display=swap');
+@import 'tailwindcss';
 
 :root {
   --cream: #f2ede4;
@@ -16,4 +15,8 @@
   --border-focus: #9a8060;
   --red-suit: #c84a2a;
   --shadow: 0 2px 16px rgba(28, 24, 18, 0.1), 0 1px 4px rgba(28, 24, 18, 0.07);
+}
+
+body {
+  background: var(--cream);
 }
