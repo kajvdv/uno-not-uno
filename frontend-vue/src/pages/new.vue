@@ -49,7 +49,19 @@ function createLobby() {
           <option>6 spelers</option>
         </select>
         <div class="text-xs text-(--ink-dim) mt-1 italic">2 – 6 spelers toegestaan.</div>
-        <Button type="green" class="mt-4">Maak lobby aan →</Button>
+        <RouterLink to="/lobby" v-slot="{ navigate }" custom>
+          <Button
+            @click="
+              () => {
+                createLobby()
+                navigate()
+              }
+            "
+            type="green"
+            class="mt-4"
+            >Maak lobby aan →</Button
+          >
+        </RouterLink>
       </div>
     </form>
   </Card>
