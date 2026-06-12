@@ -10,13 +10,15 @@ function createLobby() {
 
 <template>
   <Card>
-    <RouterLink v-slot="{ navigate, isActive }" to="/" custom
-      ><a
-        @click="navigate"
-        class="text-xs hover:underline cursor-pointer text-(--ink-dim) uppercase mb-5 block"
-        >← Terug</a
-      ></RouterLink
-    >
+    <RouterLink v-slot="{ navigate, isActive }" to="/" custom>
+      <div class="mb-5">
+        <a
+          @click="navigate"
+          class="text-xs hover:underline cursor-pointer text-(--ink-dim) uppercase"
+          >← Terug</a
+        >
+      </div>
+    </RouterLink>
     <div class="font-title text-lg font-bold text-(--ink) mb-1">Lobby aanmaken</div>
     <div class="text-xs text-(--ink-mid) mb-5">Kies een naam en stel de regels in.</div>
     <form @submit.prevent="createLobby">
@@ -29,12 +31,13 @@ function createLobby() {
           name="username"
           type="text"
           placeholder="bijv. Sander"
+          required
         />
         <div class="text-xs text-(--ink-dim) mt-1 italic">Zo zien andere jou in de lobby.</div>
       </div>
       <div>
         <label class="block mb-1.5 text-xs text-(--ink-mid)" for="playerCount"
-          >Max. aantal spelers</label
+          >Aantal spelers</label
         >
         <select
           name="playerCount"
