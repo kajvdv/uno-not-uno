@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { Card, CardTitle } from '@/components/card'
-import { Button } from '@/components/button'
+import { Button } from '@/components/buttons'
 import { TextInput } from '@/components/input/index.ts'
 
 function joinLobby() {
