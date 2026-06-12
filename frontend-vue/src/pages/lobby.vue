@@ -1,6 +1,15 @@
 <script setup lang="ts">
 import { Card } from '@/components/card'
 import { LobbyBadge } from '@/components/badges'
+import { PlayerList, PlayerItem, PendingItem } from '@/components/lobby'
+
+const players = [
+  { name: 'Jaap' },
+  { name: 'Sander' },
+  { name: 'Lisa' },
+  // { name: 'Lisa' },
+  // { name: 'Karen' },
+]
 </script>
 
 <template>
@@ -18,58 +27,7 @@ import { LobbyBadge } from '@/components/badges'
       <div class="w-1.5 h-1.5 bg-green-600 rounded-full shrink-0 animate-pulse"></div>
       Wachten op spelers…
     </div>
-    <div class="bg-(--warm) border border-(--border) rounded-xl overflow-hidden mb-3.5">
-      <div class="flex justify-between py-2 px-3.5 border-b border-(--border) bg-(--cream)">
-        <span class="text-xs tracking-widest uppercase text-(--ink-dim)">Spelers</span>
-        <span class="text-xs tracking-widest uppercase text-(--ink-dim)">3 / 4</span>
-      </div>
-      <div class="flex items-center gap-2.5 py-2.5 px-3.5 border-b border-(--border)">
-        <div
-          class="w-7 h-7 rounded-full bg-(--ink) text-(--cream) flex items-center justify-center text-title text-xs font-bold shrink-0"
-        >
-          S
-        </div>
-        <div class="flex-1">
-          <div class="text-xs text-(--ink) tracking-wide">Sander</div>
-          <div class="text-xs text-(--ink-dim) tracking-widest uppercase">Jij</div>
-        </div>
-        <LobbyBadge color="red">Host</LobbyBadge>
-      </div>
-      <div class="flex items-center gap-2.5 py-2.5 px-3.5 border-b border-(--border)">
-        <div
-          class="w-7 h-7 rounded-full bg-(--ink) text-(--cream) flex items-center justify-center text-title text-xs font-bold shrink-0"
-        >
-          S
-        </div>
-        <div class="flex-1">
-          <div class="text-xs text-(--ink) tracking-wide">Sander</div>
-          <div class="text-xs text-(--ink-dim) tracking-widest uppercase">Jij</div>
-        </div>
-        <LobbyBadge color="green">Klaar</LobbyBadge>
-      </div>
-      <div class="flex items-center gap-2.5 py-2.5 px-3.5 border-b border-(--border)">
-        <div
-          class="w-7 h-7 rounded-full bg-(--ink) text-(--cream) flex items-center justify-center text-title text-xs font-bold shrink-0"
-        >
-          S
-        </div>
-        <div class="flex-1">
-          <div class="text-xs text-(--ink) tracking-wide">Sander</div>
-          <div class="text-xs text-(--ink-dim) tracking-widest uppercase">Jij</div>
-        </div>
-        <LobbyBadge color="green">Klaar</LobbyBadge>
-      </div>
-      <!-- Laatste child heeft geen border -->
-      <div class="flex items-center gap-2.5 py-2.5 px-3.5">
-        <div
-          class="w-7 h-7 rounded-full bg-transparent border-2 border-dashed border-(--border) text-(--ink-dim) flex items-center justify-center text-title text-sm font-bold shrink-0 animate-spin"
-        ></div>
-        <div class="flex-1">
-          <div class="text-xs text-(--ink-dim) tracking-wide italic">Open plek</div>
-          <div class="text-xs text-(--ink-dim) tracking-widest uppercase">Wacht op speler 4</div>
-        </div>
-      </div>
-    </div>
+    <PlayerList :data="players" :max-players="4"></PlayerList>
     <div class="text-xs text-(--ink-dim) text-center tracking-widest italic pt-2.5 pb-1">
       Even gedult…<br />
       Het spel begint zodra de lobby vol is.
