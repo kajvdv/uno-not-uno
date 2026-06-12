@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { Card } from '@/components/card'
+import { LobbyBadge } from '@/components/badges'
 </script>
 
 <template>
@@ -32,10 +33,7 @@ import { Card } from '@/components/card'
           <div class="text-xs text-(--ink) tracking-wide">Sander</div>
           <div class="text-xs text-(--ink-dim) tracking-widest uppercase">Jij</div>
         </div>
-        <span
-          class="text-xs tracking-widest uppercase bg-(--accent-light) text-(--accent) rounded-sm border border-[#e8b8ac] py-0.5 px-1.5"
-          >Host</span
-        >
+        <LobbyBadge color="red">Host</LobbyBadge>
       </div>
       <div class="flex items-center gap-2.5 py-2.5 px-3.5 border-b border-(--border)">
         <div
@@ -47,10 +45,7 @@ import { Card } from '@/components/card'
           <div class="text-xs text-(--ink) tracking-wide">Sander</div>
           <div class="text-xs text-(--ink-dim) tracking-widest uppercase">Jij</div>
         </div>
-        <span
-          class="text-xs tracking-widest uppercase bg-(--accent-light) text-(--accent) rounded-sm border border-[#e8b8ac] py-0.5 px-1.5"
-          >Host</span
-        >
+        <LobbyBadge color="green">Klaar</LobbyBadge>
       </div>
       <div class="flex items-center gap-2.5 py-2.5 px-3.5 border-b border-(--border)">
         <div
@@ -62,10 +57,7 @@ import { Card } from '@/components/card'
           <div class="text-xs text-(--ink) tracking-wide">Sander</div>
           <div class="text-xs text-(--ink-dim) tracking-widest uppercase">Jij</div>
         </div>
-        <span
-          class="text-xs tracking-widest uppercase bg-(--accent-light) text-(--accent) rounded-sm border border-[#e8b8ac] py-0.5 px-1.5"
-          >Host</span
-        >
+        <LobbyBadge color="green">Klaar</LobbyBadge>
       </div>
       <!-- Laatste child heeft geen border -->
       <div class="flex items-center gap-2.5 py-2.5 px-3.5">
