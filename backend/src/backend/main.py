@@ -17,8 +17,6 @@ from fastapi import FastAPI, WebSocket, Depends
 from fastapi.responses import RedirectResponse, PlainTextResponse
 
 from backend.lobby.routes import router as router_lobby, lobbies_create_parameters
-from backend.auth import router as router_auth, ExpiredSignatureError
-from backend.admin import router as router_admin
 from backend.reload import Reloader
 
 
@@ -50,16 +48,10 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(lifespan=lifespan)
 # Secure endpoints with Depends(get_current_user)
-app.include_router(router_auth)
 app.include_router(
     router_lobby,
     prefix='/lobbies',
 )
-app.include_router(router_admin, prefix='/admin')
-
-@app.exception_handler(ExpiredSignatureError)
-def handle_expired_auth(request, exc):
-    return PlainTextResponse("Unauthorized", status_code=401)
 
 
 @app.get('/tasks')

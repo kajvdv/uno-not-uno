@@ -2,7 +2,7 @@ from time import sleep
 
 from httpx import Client
 
-from app.lobby.schemas import LobbyResponse
+from backend.lobby.schemas import LobbyResponse
 from accept.drivers.http import HttpDriver, WebsocketConnection
 
 

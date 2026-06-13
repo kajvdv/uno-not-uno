@@ -1,13 +1,10 @@
 import pytest
+from dotenv import load_dotenv
+load_dotenv(".env.test")
 from fastapi.testclient import TestClient
 from typer.testing import CliRunner
 
 from backend.main import app
-
-
-@pytest.fixture(autouse=True)
-def load_env_vars(monkeypatch):
-    monkeypatch.setenv("DB_CONN_STRING", "addfs")
 
 
 @pytest.fixture(name="app")

@@ -4,7 +4,7 @@ import json
 import pytest
 from fastapi.testclient import TestClient
 
-from backend.auth import decode_token
+from backend.token import decode_token
 from backend.lobby.dependencies import create_game
 from pesten.pesten import Pesten, card
 

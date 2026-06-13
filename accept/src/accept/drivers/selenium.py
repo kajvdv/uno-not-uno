@@ -5,7 +5,7 @@ from selenium.webdriver.chrome.webdriver import WebDriver
 
 from accept.driver import Driver, Connection
 from accept.drivers.http import HttpDriver
-from app.lobby.schemas import LobbyResponse
+from backend.lobby.schemas import LobbyResponse
 from bot.browser import connect, start_browser
 
 _WS_INTERCEPTOR = """

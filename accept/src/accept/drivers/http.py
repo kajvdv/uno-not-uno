@@ -7,20 +7,20 @@ from websockets.sync.client import connect, ClientConnection
 from websockets.exceptions import ConnectionClosed
 from httpx import Client
 
-from app.exceptions import NameAlreadyTakenError, GameNotStartedError
-from app.lobby.schemas import LobbyResponse
+from backend.exceptions import NameAlreadyTakenError, GameNotStartedError
+from backend.lobby.schemas import LobbyResponse
 
 from accept.driver import Connection, Driver
 
 
 class WebsocketConnection(Connection):
-    def __init__(self, ws: ClientConnection, username: str, lobby: LobbyResponse) -> None:
+    def __init__(self, ws: ClientConnection) -> None:
         self._ws = ws
         self.t = Thread(target=self._listen)
         self._is_listening = False
         self._exception = None
-        self._username = username
-        self.lobby = lobby
+        # self._username = username
+        # self.lobby = lobby
         self._last_board: dict | None = None
 
     def _listen(self):
@@ -61,8 +61,9 @@ class WebsocketConnection(Connection):
 
 
 class HttpDriver(Driver):
-    def __init__(self, client: Client) -> None:
+    def __init__(self, client: Client, name: str) -> None:
         self.client = client
+        self.name = name
 
     def home(self):
         from accept.screens.http import HttpHomeScreen
@@ -75,10 +76,10 @@ class HttpDriver(Driver):
         assert response.status_code == 200, response.text
         return lobby
     
-    def get_lobbies(self) -> list[LobbyResponse]:
-        response = self.client.get("/lobbies")
-        assert response.status_code == 200, response.text
-        return [LobbyResponse.model_validate(l) for l in response.json()]
+    # def get_lobbies(self) -> list[LobbyResponse]:
+    #     response = self.client.get("/lobbies")
+    #     assert response.status_code == 200, response.text
+    #     return [LobbyResponse.model_validate(l) for l in response.json()]
 
     def join_lobby(self, lobby: LobbyResponse, username) -> Connection:
         response = self.client.post(f"/lobbies/{lobby.id}/join", json={
@@ -95,3 +96,23 @@ class HttpDriver(Driver):
         )
 
         return WebsocketConnection(ws, username, lobby)
+
+    def create_game(self, config: dict) -> str:
+        lobby = LobbyResponse.model_validate(
+            self.client.post("/lobbies", json=config).raise_for_status().json()
+        )
+        return lobby.id
+
+    def join_game(self, code: str) -> Connection:
+        response = self.client.post(f"/lobbies/{code}/join", json={
+            "username": self.name
+        })
+        print(response.json())
+        response.raise_for_status()
+        token = self.client.cookies.get("sessionToken")
+        ws = connect(
+            f"ws://localhost:8000/lobbies/{quote(code)}/connect",
+            additional_headers={"Cookie": f"sessionToken={token}"}
+        )
+        return WebsocketConnection(ws)
+

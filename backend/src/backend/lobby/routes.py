@@ -1,4 +1,5 @@
 # TODO: Have a player be replaced by an AI if they don't join back on time
+from typing import Annotated
 import logging
 import random
 import string
@@ -7,7 +8,8 @@ import urllib.parse
 from fastapi import APIRouter, Depends, Form, Request, WebSocket, Response, Body, Path, HTTPException, Cookie
 
 
-from backend.auth import get_current_user, generate_access_token, decode_token
+# from backend.auth import get_current_user, generate_access_token, decode_token
+from backend.token import generate_token, decode_token
 from pesten.lobby import Player, NullConnection
 from .schemas import LobbyCreate, LobbyResponse, Card, Registration
 from .dependencies import Lobbies, HumanConnection, create_game
@@ -20,8 +22,8 @@ router = APIRouter()
 
 
 
-def decode_cookie(cookies):
-    content = decode_token(cookies.get("sessionToken"))
+def decode_session_token(session_token):
+    content = decode_token(session_token)
     username = content['sub']
     return username, content['lobby']
 
@@ -88,9 +90,10 @@ async def create_lobby_route(
 ):
     lobby_create.name = ''.join(random.choices(string.ascii_uppercase, k=4))
     await lobbies_crud.create_lobby(lobby_create, game)
+    
     # Save config to restore lobby on startup
     request.state.lobbies_create_parameters[lobby_create.name] = lobby_create
-    response.set_cookie("sessionToken", generate_access_token(lobby_create.creator, lobby_create.name))
+    response.set_cookie("sessionToken", generate_token(lobby_create.creator, lobby_create.name))
     return {
         "url": urllib.parse.quote(f"{request.url_for("get_lobby_route", lobby_id=lobby_create.name)}", safe="/:"),
         'id': lobby_create.name,
@@ -102,23 +105,24 @@ async def create_lobby_route(
 
 
 @router.post("/{lobby_id}/join")
-def register_user_router(
-    request: Request,
+def register_user_route(
+    # request: Request,
     response: Response,
-    lobby_id: str,
-    body: dict,
+    username: Annotated[str, Body(embed=True)],
+    sessionToken: str = Cookie(None),
+    lobby_id: str = Path(),
     lobbies_crud: Lobbies = Depends(),
 ):
-    username = body['username']
     lobby = lobbies_crud.get_lobby(lobby_id)
     usernames = [p.name for p in lobby.players]
-    if request.cookies.get("sessionToken"):
-        username_cookie, lobby_name = decode_cookie(request.cookies)
+    if sessionToken:
+        username_cookie, lobby_name = decode_session_token(sessionToken)
+        
         assert lobby_name == lobby_id
         assert username_cookie == username
     elif username in usernames:
         raise HTTPException(status_code=409)
-    response.set_cookie("sessionToken", generate_access_token(username, lobby_id))
+    response.set_cookie("sessionToken", generate_token(username, lobby_id))
     # return {
     #     "registerUrl": "",
     #     "websocketUrl": str(request.url_for("connect_to_lobby", lobby_name=lobby_id))
@@ -152,9 +156,10 @@ def get_lobby_rules(lobby_id, request: Request):
 async def connect_to_lobby(
         lobby_name: str,
         websocket: WebSocket,
+        sessionToken: Annotated[str, Cookie()]
         # connection: HumanConnection = Depends(),
 ):
-    username, lobby_id = decode_cookie(websocket.cookies)
+    username, lobby_id = decode_session_token(sessionToken)
     # await websocket.accept()
     lobbies = websocket.app.state.lobbies
     try:

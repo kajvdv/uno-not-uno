@@ -1,7 +1,7 @@
 from random import Random
 
-from app.lobby.dependencies import create_game
-from app.lobby.schemas import LobbyCreate
+from backend.lobby.dependencies import create_game
+from backend.lobby.schemas import LobbyCreate
 
 from pesten.agent import Agent
 

@@ -3,17 +3,17 @@ from time import sleep
 
 import pytest
 
-from app.lobby.schemas import LobbyCreate
+from backend.lobby.schemas import LobbyCreate
 from accept.generate import generate_chooses
 
 pytest.register_assert_rewrite("accept.drivers")
 
 
-@pytest.fixture(scope="session", autouse=True)
-def fresh_server_session():
-    import app
-    Path(app.__file__).touch()
-    sleep(1)
+# @pytest.fixture(scope="session", autouse=True)
+# def fresh_server_session():
+#     import backend
+#     Path(backend.__file__).touch()
+#     sleep(1)
 
 
 @pytest.fixture
