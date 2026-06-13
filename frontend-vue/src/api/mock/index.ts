@@ -1,9 +1,12 @@
 import createLobbyResponse from '@/../data/create_response.json'
+import type { Api } from '@/types/api'
 
-export default {
+const api: Api = {
   lobby: {
-    createLobby() {
+    async createLobby() {
       return createLobbyResponse
     },
   },
 }
+
+export default api

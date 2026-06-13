@@ -1,8 +1,17 @@
 <script setup lang="ts">
 import { Button } from '@/components/buttons'
 import { Card } from '@/components/card'
+import { useLobbyStore } from '@/stores/lobby'
+import type { LobbyCreate } from '@/types/lobby'
+import { ref } from 'vue'
+
+const lobbyStore = useLobbyStore()
+
+const username = ref('')
+const size = ref(4)
 
 function createLobby() {
+  lobbyStore.create({ creator: username.value, size: size.value })
   console.log('Creating lobby')
 }
 </script>
@@ -26,6 +35,7 @@ function createLobby() {
           >Jouw naam in dit spel</label
         >
         <input
+          v-model="username"
           class="w-full border box-border rounded-md py-2.5 px-3 text-sm text-(--ink) bg-(--cream) border-(--border) focus:border-(--border-focus) outline-0"
           name="username"
           type="text"
@@ -39,14 +49,15 @@ function createLobby() {
           >Aantal spelers</label
         >
         <select
+          v-model="size"
           name="playerCount"
           class="w-full border box-border rounded-md py-2.5 px-3 text-sm text-(--ink) bg-(--cream) border-(--border) focus:border-(--border-focus) outline-0"
         >
-          <option>2 spelers</option>
-          <option>3 spelers</option>
-          <option selected>4 spelers</option>
-          <option>5 spelers</option>
-          <option>6 spelers</option>
+          <option value="2">2 spelers</option>
+          <option value="3">3 spelers</option>
+          <option value="4">4 spelers</option>
+          <option value="5">5 spelers</option>
+          <option value="6">6 spelers</option>
         </select>
         <div class="text-xs text-(--ink-dim) mt-1 italic">2 – 6 spelers toegestaan.</div>
         <RouterLink to="/lobby" v-slot="{ navigate }" custom>

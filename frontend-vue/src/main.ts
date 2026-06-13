@@ -6,7 +6,7 @@ import '@/assets/styles.css'
 import App from './App.vue'
 import router from './router'
 import { createApi } from './plugins/client.ts'
-import api from '@/api/mock'
+import api from '@/api'
 
 const app = createApp(App)
 
