@@ -3,6 +3,8 @@ export interface LobbyCreate {
   creator: string
 }
 
+export interface LobbyResponse {}
+
 export interface LobbyPlayer {
   name: string
 }
